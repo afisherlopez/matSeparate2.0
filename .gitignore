@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Model checkpoints / large artifacts
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+
+# Training run outputs
+segmentation_pipeline/runs/
+
+# OS
+.DS_Store
