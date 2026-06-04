@@ -1,0 +1,10 @@
+torch
+torchvision
+torch-geometric
+timm
+networkx
+numpy
+pillow
+tifffile
+pyyaml
+pytest
