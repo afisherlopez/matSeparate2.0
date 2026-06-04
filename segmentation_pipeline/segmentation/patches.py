@@ -187,10 +187,19 @@ class SlidingWindowSampler(PatchSampler):
         pad_mode: str = "reflect",
         min_patches: Optional[int] = None,
         max_patches: Optional[int] = None,
+        window_area_pct: Optional[float] = None,
     ):
         if window_size <= 0:
             raise ValueError("window_size must be positive")
+        if window_area_pct is not None and window_area_pct <= 0:
+            raise ValueError("window_area_pct must be positive")
         self.window_size = window_size
+        # When set, the window is sized per-image so its area is this % of the total image
+        # area (resolved in ``_grid``); it overrides ``window_size``.
+        self.window_area_pct = window_area_pct
+        # Keep the raw stride request; the effective stride is resolved per-image in
+        # ``_grid`` so it can track an area-derived window (None/<=0 -> window // 2).
+        self._stride_arg = stride
         self.stride = stride if stride and stride > 0 else max(1, window_size // 2)
         self.pad_mode = pad_mode
         self.min_patches = min_patches
@@ -206,10 +215,28 @@ class SlidingWindowSampler(PatchSampler):
             mode = "edge"
         return np.pad(image, ((0, pad_h), (0, pad_w), (0, 0)), mode=mode)
 
+    def _base_window(self, h: int, w: int) -> int:
+        """Window size (px) before patch-count adaptation.
+
+        If ``window_area_pct`` is set, the square window's area is that percentage of the
+        total image area: side = sqrt(window_area_pct/100 * H * W). Otherwise the explicit
+        ``window_size`` is used.
+        """
+        if self.window_area_pct is not None:
+            ws = int(round(math.sqrt(self.window_area_pct / 100.0 * h * w)))
+            return max(1, ws)
+        return self.window_size
+
     def _grid(self, h: int, w: int):
         """Resolve the (window, stride) and the window start coords for this image."""
+        base_window = self._base_window(h, w)
+        base_stride = (
+            self._stride_arg
+            if (self._stride_arg and self._stride_arg > 0)
+            else max(1, base_window // 2)
+        )
         ws, stride = _resolve_window_stride(
-            h, w, self.window_size, self.stride, self.min_patches, self.max_patches
+            h, w, base_window, base_stride, self.min_patches, self.max_patches
         )
         hp, wp = max(h, ws), max(w, ws)
         ys = _positions(hp, ws, stride)
@@ -260,5 +287,6 @@ def build_sampler(sampling_config) -> PatchSampler:
             pad_mode=sampling_config.pad_mode,
             min_patches=getattr(sampling_config, "min_patches", None),
             max_patches=getattr(sampling_config, "max_patches", None),
+            window_area_pct=getattr(sampling_config, "window_area_pct", None),
         )
     raise NotImplementedError(f"Unknown sampler type '{sampling_config.type}'")

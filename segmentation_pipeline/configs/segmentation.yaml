@@ -7,8 +7,8 @@ device: cpu            # torch_geometric scatter ops are broken on Apple MPS; us
 sampling:
   type: sliding         # sliding (overlapping, much finer) | grid (coarse, fast)
   patch_size: 224       # grid tile size (and classifier input size)
-  window_size: 96       # sliding: crop size in image px (resized to 224 for the model)
-  stride: 48            # sliding: window spacing; smaller -> finer/denser/slower
+  window_area_pct: 1.5  # sliding: window side = sqrt(1.5% * H*W); overrides window_size
+  stride: null          # sliding: null -> auto = window // 2 (half the window; 2x overlap)
   pad_mode: reflect
   batch_size: 32
   min_patches: null     # sliding: if set, stride auto-adapts so patches >= this per image

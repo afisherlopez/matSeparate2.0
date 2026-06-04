@@ -24,6 +24,10 @@ class SamplingConfig:
     batch_size: int = 32  # patches per forward pass
     # sliding-window only:
     window_size: int = 96  # crop size in image pixels (resized to patch_size for model)
+    # If set, the square window is sized per-image so its AREA equals this percentage of the
+    # total image pixel area (H*W); i.e. side = sqrt(window_area_pct/100 * H * W). This
+    # OVERRIDES ``window_size``. e.g. 1.5 -> window covers 1.5% of the image area.
+    window_area_pct: Optional[float] = None
     stride: Optional[int] = 48  # window spacing; smaller -> finer/denser/slower
     # Optional patch-count bounds (sliding only). When set, the stride is adapted per image
     # so the total patch count stays in [min_patches, max_patches] regardless of image size
