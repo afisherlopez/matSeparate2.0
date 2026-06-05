@@ -192,7 +192,7 @@ def load_hgnn_model(run_dir: Path, device: torch.device):
                         num_heads=1, skip_connection=True, dropout=cfg["dropout"]),
         dropout_prob=cfg["dropout"],
     )
-    model.load_state_dict(ckpt["model_state_dict"])
+    model.load_state_dict(ckpt["model_state_dict"], strict=False)
     model = model.to(device).eval()
 
     leaves      = [n for n in graph.nodes if graph.out_degree(n) == 0]

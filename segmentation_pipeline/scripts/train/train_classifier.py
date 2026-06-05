@@ -12,9 +12,9 @@ All share the same backbone, optimizer, and augmentation pipeline except where
 noted. Checkpoints are saved under runs/minc_<model>/<timestamp>/.
 
 Usage:
-    python scripts/train_classifier.py --model flat
-    python scripts/train_classifier.py --model maskdrop --epochs 10 --batch-size 64
-    python scripts/train_classifier.py --model hierloss --epochs 10
+    python scripts/train/train_classifier.py --model flat
+    python scripts/train/train_classifier.py --model maskdrop --epochs 10 --batch-size 64
+    python scripts/train/train_classifier.py --model hierloss --epochs 10
 """
 
 import argparse
@@ -35,50 +35,16 @@ from torch.utils.data import DataLoader
 
 repo_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(repo_root))
+sys.path.insert(0, str(repo_root / "scripts" / "train"))
 
 from datasets.minc import MINC2500Dataset
 from gnn_classifier.loss import greedy_loss
 from taxonomy.tree import get_taxonomy, get_hierarchy_levels
+from train_hgnn import MaskDropAugment
 
 CATEGORIES = MINC2500Dataset.CATEGORIES
 NUM_CLASSES = len(CATEGORIES)          # 23
 IMAGENET_MEAN_RGB = (123, 116, 103)    # matches eval-time masking
-
-
-# ── Augmentation ──────────────────────────────────────────────────────────────
-
-class MaskDropAugment:
-    """
-    Simulate the masked-crop format used at eval time on MINC-S segments.
-
-    With probability `p`, draws a random ellipse mask and fills pixels outside
-    it with ImageNet mean. This exposes the model to the same "context-removed"
-    input format it will see during segmentation evaluation, closing the domain
-    gap between MINC-2500 training patches and irregular MINC-S segment crops.
-    """
-
-    def __init__(self, p: float = 0.5, min_scale: float = 0.3,
-                 max_scale: float = 0.9, margin: float = 0.1):
-        self.p = p
-        self.min_scale = min_scale
-        self.max_scale = max_scale
-        self.margin = margin
-
-    def __call__(self, img: Image.Image) -> Image.Image:
-        if random.random() >= self.p:
-            return img
-        W, H = img.size
-        cx = random.uniform(self.margin * W, (1 - self.margin) * W)
-        cy = random.uniform(self.margin * H, (1 - self.margin) * H)
-        rx = random.uniform(self.min_scale * W / 2, self.max_scale * W / 2)
-        ry = random.uniform(self.min_scale * H / 2, self.max_scale * H / 2)
-        ellipse_mask = Image.new("L", (W, H), 0)
-        draw = ImageDraw.Draw(ellipse_mask)
-        draw.ellipse([int(cx - rx), int(cy - ry), int(cx + rx), int(cy + ry)], fill=255)
-        inside = np.array(ellipse_mask) > 127
-        arr = np.array(img).copy()
-        arr[~inside] = np.array(IMAGENET_MEAN_RGB, dtype=np.uint8)
-        return Image.fromarray(arr)
 
 
 # ── Model builders ────────────────────────────────────────────────────────────

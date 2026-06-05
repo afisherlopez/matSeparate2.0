@@ -47,6 +47,7 @@ from PIL import Image
 
 repo_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(repo_root))
+sys.path.insert(0, str(repo_root / "scripts" / "train"))
 
 from datasets.minc import MINC2500Dataset
 from gnn_classifier.hgnn import HGNN, ImageEncoder
@@ -143,7 +144,7 @@ def load_hgnn_main(run_dir: Path, device: torch.device):
                         num_heads=1, skip_connection=True, dropout=cfg["dropout"]),
         dropout_prob=cfg["dropout"],
     )
-    model.load_state_dict(ckpt["model_state_dict"])
+    model.load_state_dict(ckpt["model_state_dict"], strict=False)
     model = model.to(device).eval()
 
     leaves      = [n for n in graph.nodes if graph.out_degree(n) == 0]
@@ -177,7 +178,7 @@ def load_ablation_variant(run_dir: Path, device: torch.device):
     For MLP: argmax(logits) == CATEGORIES index directly.
     Returns (model, is_hgnn, leaf_indices).
     """
-    from seg_classifier.train.ablation_variants import (
+    from train_ablation_variants import (
         MLPClassifier, MLPMatchedClassifier, make_random_tree, make_full_graph, canonicalize
     )
     ckpt_path = run_dir / "checkpoint_best.pt"
@@ -235,7 +236,7 @@ def load_ablation_variant(run_dir: Path, device: torch.device):
                         num_heads=1, skip_connection=True, dropout=cfg["dropout"]),
         dropout_prob=cfg["dropout"],
     )
-    model.load_state_dict(ckpt["model_state_dict"])
+    model.load_state_dict(ckpt["model_state_dict"], strict=False)
     model = model.to(device).eval()
 
     node_to_idx  = ckpt["node_to_idx"]
