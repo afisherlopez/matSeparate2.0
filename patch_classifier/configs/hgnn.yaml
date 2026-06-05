@@ -1,0 +1,30 @@
+taxonomy: segmentation_pipeline/taxonomy/assets/matador-c1-taxonomy.json
+root: root
+
+data:
+  train_csv: data/processed/matador_c1/splits/train.csv
+  val_csv: data/processed/matador_c1/splits/val.csv
+  image_root: data/raw/matador_appearance
+  image_tar:
+  label_col: c1_label
+  image_col: image_path
+
+model:
+  type: hgnn
+  backbone: resnet50
+  pretrained: true
+  embed_dim: 256
+  hidden_dim: 128
+  dropout: 0.1
+  use_context: false
+
+training:
+  seed: 0
+  epochs: 15
+  batch_size: 32
+  num_workers: 4
+  image_size: 224
+  lr: 0.0001
+  weight_decay: 0.0001
+  out_dir: runs/hgnn
+

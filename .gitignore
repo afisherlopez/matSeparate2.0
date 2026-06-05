@@ -18,6 +18,9 @@ env/
 
 # Training run outputs
 segmentation_pipeline/runs/
+patch_classifier/runs/
+runs/
+data/
 
 # OS
 .DS_Store
