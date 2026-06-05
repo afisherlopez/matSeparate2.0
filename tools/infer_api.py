@@ -29,8 +29,6 @@ import sys
 _repo_root = Path(__file__).resolve().parent.parent
 if str(_repo_root) not in sys.path:
     sys.path.insert(0, str(_repo_root))
-if str(_repo_root / "gnn_classifier") not in sys.path:
-    sys.path.insert(0, str(_repo_root / "gnn_classifier"))
 
 from gnn_classifier.hgnn import HGNN
 from taxonomy.tree import get_hierarchy_levels, get_taxonomy

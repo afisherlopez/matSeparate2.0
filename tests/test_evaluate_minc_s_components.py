@@ -1,6 +1,6 @@
 import numpy as np
 
-from scripts.evaluate_minc_s_components import dice, iou, summarize
+from scripts.eval.evaluate_minc_s_components import dice, iou, summarize
 
 
 def test_overlap_metrics():

@@ -10,7 +10,7 @@ import torch
 from PIL import Image
 from torch.utils.data import Dataset
 
-from patch_classifier.taxonomy import Taxonomy
+from classifier.taxonomy import Taxonomy
 
 
 class PatchDataset(Dataset):

@@ -1,4 +1,4 @@
-taxonomy: segmentation_pipeline/taxonomy/assets/matador-c1-taxonomy.json
+taxonomy: taxonomy/assets/matador-c1-taxonomy.json
 root: root
 
 data:

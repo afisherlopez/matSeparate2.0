@@ -2,9 +2,9 @@ import argparse
 
 import torch
 
-from patch_classifier.losses import hgnn_leaf_accuracy, leaf_accuracy
-from patch_classifier.train import make_loader, make_model
-from patch_classifier.taxonomy import load_taxonomy
+from classifier.losses import hgnn_leaf_accuracy, leaf_accuracy
+from classifier.train import make_loader, make_model
+from classifier.taxonomy import load_taxonomy
 
 
 def main():

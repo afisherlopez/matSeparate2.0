@@ -117,7 +117,7 @@ class MaterialMerger:
         if str(repo_root) not in sys.path:
             sys.path.insert(0, str(repo_root))
 
-        from scripts.infer_api import HGNNInference
+        from tools.infer_api import HGNNInference
         from taxonomy.tree import get_taxonomy
 
         config = config or SegmentationConfig()
@@ -142,7 +142,7 @@ class MaterialMerger:
             if str(path) not in sys.path:
                 sys.path.insert(0, str(path))
 
-        from patch_classifier.infer import PatchClassifierInference
+        from classifier.infer import PatchClassifierInference
 
         config = config or SegmentationConfig()
         checkpoint = Path(checkpoint)

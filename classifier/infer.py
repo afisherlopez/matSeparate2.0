@@ -6,13 +6,13 @@ import torch
 import torchvision.transforms as T
 from PIL import Image
 
-from patch_classifier.models import (
+from classifier.models import (
     GlobalResNetPatchClassifier,
     HGNNPatchClassifier,
     ResNetPatchClassifier,
 )
-from patch_classifier.taxonomy import Taxonomy, load_taxonomy
-from patch_classifier.train import make_model
+from classifier.taxonomy import Taxonomy, load_taxonomy
+from classifier.train import make_model
 
 
 class PatchClassifierInference:

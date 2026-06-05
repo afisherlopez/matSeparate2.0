@@ -5,7 +5,7 @@ import timm
 from torch_geometric.data import Batch, Data
 from torch_geometric.nn import GATConv, global_mean_pool
 
-from patch_classifier.taxonomy import Taxonomy
+from classifier.taxonomy import Taxonomy
 
 
 class ResNetPatchClassifier(nn.Module):

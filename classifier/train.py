@@ -7,14 +7,14 @@ import torchvision.transforms as T
 import yaml
 from torch.utils.data import DataLoader
 
-from patch_classifier.data import PatchDataset
-from patch_classifier.losses import hgnn_leaf_accuracy, hgnn_loss, leaf_accuracy
-from patch_classifier.models import (
+from classifier.data import PatchDataset
+from classifier.losses import hgnn_leaf_accuracy, hgnn_loss, leaf_accuracy
+from classifier.models import (
     GlobalResNetPatchClassifier,
     HGNNPatchClassifier,
     ResNetPatchClassifier,
 )
-from patch_classifier.taxonomy import load_taxonomy
+from classifier.taxonomy import load_taxonomy
 
 
 def load_config(path):

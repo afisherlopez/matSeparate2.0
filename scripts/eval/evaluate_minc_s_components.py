@@ -14,11 +14,9 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-seg_root = Path(__file__).resolve().parent.parent
-repo_root = seg_root.parent
-for path in (seg_root, repo_root):
-    if str(path) not in sys.path:
-        sys.path.insert(0, str(path))
+repo_root = Path(__file__).resolve().parent.parent.parent
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
 
 from segmentation.config import SegmentationConfig  # noqa: E402
 from segmentation.pipeline import MaterialMerger  # noqa: E402
@@ -179,7 +177,7 @@ def build_stub_merger(cfg: SegmentationConfig):
     from segmentation.classify import PatchClassifier, StubLeafPredictor
     from taxonomy.tree import get_taxonomy
 
-    graph = get_taxonomy(str(seg_root / "taxonomy" / "assets" / "matador-c1-taxonomy.json"))
+    graph = get_taxonomy(str(repo_root / "taxonomy" / "assets" / "matador-c1-taxonomy.json"))
     leaves = sorted(node for node in graph.nodes() if graph.out_degree(node) == 0)
     if cfg.crf.backend == "dense":
         cfg.crf.backend = "none"
