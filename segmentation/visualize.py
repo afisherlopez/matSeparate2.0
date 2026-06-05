@@ -1,27 +1,16 @@
-"""
-Visualization of segmentation results.
-
-Produces (a) a semantic overlay (material colors blended over the image), (b) an instance
-overlay (one color per connected-component object), and (c) a composite panel figure with
-a material legend -- optionally including a ground-truth panel for side-by-side comparison.
-
-Uses a non-interactive matplotlib backend so it works headless (e.g. over SSH).
-"""
-
-from __future__ import annotations
-
 from pathlib import Path
 from typing import Dict, List, Optional, Union
+from __future__ import annotations
 
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
-import numpy as np  # noqa: E402
-from matplotlib.patches import Patch  # noqa: E402
+import matplotlib.pyplot as plt 
+import numpy as np  
+from matplotlib.patches import Patch  
 
-from segmentation.formats import build_palette  # noqa: E402
-from segmentation.objects import BACKGROUND_ID  # noqa: E402
+from segmentation.formats import build_palette  
+from segmentation.objects import BACKGROUND_ID  
 
 
 def semantic_overlay(
@@ -30,7 +19,7 @@ def semantic_overlay(
     num_classes: int,
     alpha: float = 0.5,
 ) -> np.ndarray:
-    """Blend material colors over the image (background pixels left unchanged)."""
+
     palette = build_palette(num_classes)
     color = palette[np.clip(label_map, 0, num_classes)].astype(np.float32)
     base = image_uint8.astype(np.float32)
@@ -45,7 +34,7 @@ def instance_overlay(
     instances,
     alpha: float = 0.55,
 ) -> np.ndarray:
-    """Blend a distinct color over each instance mask."""
+
     base = image_uint8.astype(np.float32)
     out = base.copy()
     palette = build_palette(max(len(instances), 1))
@@ -76,7 +65,7 @@ def save_panel(
     alpha: float = 0.5,
     dpi: int = 130,
 ) -> str:
-    """Save a composite figure: original | semantic overlay | instances [| ground truth]."""
+    
     num_classes = len(result.frontier_names)
     sem = semantic_overlay(image_uint8, result.label_map, num_classes, alpha=alpha)
     inst = instance_overlay(image_uint8, result.instances, alpha=alpha + 0.05)
@@ -124,13 +113,7 @@ def save_level_comparison(
     dpi: int = 130,
     show_input: bool = True,
 ) -> str:
-    """Save a side-by-side figure comparing several taxonomy levels.
-
-    The first ``result`` is re-cut (cheaply, from cached refined leaf probs) to each
-    requested level; each panel shows that level's material overlay + legend. Useful for
-    visualizing, e.g., ``leaf`` vs ``metal/rock/...`` (depth 3) vs ``biotic/abiotic``
-    (depth 2) on the same image.
-    """
+    
     if result._merger is None:
         raise RuntimeError("result must be attached to a MaterialMerger to re-cut levels")
 
@@ -176,7 +159,7 @@ def save_overlays(
     result,
     alpha: float = 0.5,
 ) -> Dict[str, str]:
-    """Save standalone semantic + instance overlay PNGs (no figure chrome)."""
+    
     from PIL import Image
 
     out_dir = Path(out_dir)

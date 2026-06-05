@@ -1,11 +1,3 @@
-"""
-Configuration for the material segmentation / merging pipeline.
-
-A single ``SegmentationConfig`` (composed of small nested dataclasses) holds every
-knob in the pipeline. Construct it directly, from a dict, or from a YAML file
-(``configs/segmentation.yaml``).
-"""
-
 from __future__ import annotations
 
 import dataclasses
@@ -16,40 +8,33 @@ from typing import Any, Dict, Optional, Union
 
 @dataclass
 class SamplingConfig:
-    """How the image is broken into patches for the classifier."""
+   #dividing image into grid of patches
 
-    type: str = "grid"  # "grid" (coarse, fast) | "sliding" (overlapping, much finer)
-    patch_size: int = 224  # grid tile size (and classifier input size)
-    pad_mode: str = "reflect"  # numpy pad mode used to make H,W a multiple of patch_size
-    batch_size: int = 32  # patches per forward pass
-    # sliding-window only:
-    window_size: int = 96  # crop size in image pixels (resized to patch_size for model)
-    # If set, the square window is sized per-image so its AREA equals this percentage of the
-    # total image pixel area (H*W); i.e. side = sqrt(window_area_pct/100 * H * W). This
-    # OVERRIDES ``window_size``. e.g. 1.5 -> window covers 1.5% of the image area.
+    type: str = "grid"  
+    patch_size: int = 224  
+    pad_mode: str = "reflect" 
+    batch_size: int = 32  
+    
+    window_size: int = 96  
     window_area_pct: Optional[float] = None
-    stride: Optional[int] = 48  # window spacing; smaller -> finer/denser/slower
-    # Optional patch-count bounds (sliding only). When set, the stride is adapted per image
-    # so the total patch count stays in [min_patches, max_patches] regardless of image size
-    # (prevents huge images from exploding patch counts, and tiny ones from under-sampling).
+    stride: Optional[int] = 48  
     min_patches: Optional[int] = None
     max_patches: Optional[int] = None
 
 
 @dataclass
 class UpsampleConfig:
-    """Coarse grid -> dense per-pixel probability map."""
-
+    #bilinear upsampling
     mode: str = "bilinear"
     align_corners: bool = False
-    renormalize: bool = True  # re-project onto the probability simplex after interpolation
+    renormalize: bool = True  
 
 
 @dataclass
 class CRFConfig:
-    """Dense CRF refinement of the dense probability map."""
+    #dense CRF
 
-    backend: str = "dense"  # "dense" (pydensecrf) | "superpixel" | "none"
+    backend: str = "dense"  
     n_iterations: int = 7
     gaussian_sxy: float = 3.0
     bilateral_sxy: float = 60.0
@@ -57,8 +42,8 @@ class CRFConfig:
     gaussian_compat: float = 3.0
     bilateral_compat: float = 10.0
     taxonomy_aware_compat: bool = True
-    # superpixel fallback only:
-    superpixel_method: str = "slic"  # "slic" | "felzenszwalb"
+    # superpixel fallback only
+    superpixel_method: str = "slic"  
     superpixel_n_segments: int = 400
 
 
@@ -66,42 +51,36 @@ class CRFConfig:
 class LevelConfig:
     """Which level of the taxonomy to segment at."""
 
-    # "leaf" (default, most detailed) OR an integer depth (coarser).
+    #default is leaf
     target: Union[str, int] = "leaf"
-    shallow_leaf: str = "keep"  # leaves shallower than a requested depth keep their own label
+    shallow_leaf: str = "keep" 
 
 
 @dataclass
 class ObjectsConfig:
     """Label-map thresholding and connected-component object extraction."""
 
-    # max-prob below this -> background/unknown (class 0).
-    # Default 0.0 = never background: every pixel takes its highest-probability label.
-    # Raise it (e.g. 0.5) to send low-confidence pixels to the background class instead.
+   #confidence threshold for classification
     bg_threshold: float = 0.0
-    connectivity: int = 8  # 4 or 8
-    min_object_area: int = 64  # drop components smaller than this many pixels
-    morph_close: bool = False  # bridge small gaps before connected components (off by default)
+    connectivity: int = 8  
+    min_object_area: int = 64  
+    morph_close: bool = False 
     morph_close_radius: int = 2
 
 
 @dataclass
 class OutputConfig:
-    """What artifacts to write to disk."""
-
     write_color_viz: bool = True
     write_instance_pngs: bool = False
-    minc_crosswalk: Optional[str] = None  # optional path to a Matador->MINC mapping json
+    minc_crosswalk: Optional[str] = None 
 
 
 @dataclass
 class SegmentationConfig:
-    """Top-level configuration for ``MaterialMerger``."""
 
-    run_dir: Optional[str] = None  # HGNN training run directory (config/ckpt/node_index)
-    checkpoint: Optional[str] = None  # patch_classifier checkpoint or run directory
-    classifier: str = "legacy_hgnn"  # "legacy_hgnn" | "patch_classifier"
-    # "cpu" by default: torch_geometric's scatter ops are broken on Apple MPS.
+    run_dir: Optional[str] = None  
+    checkpoint: Optional[str] = None  
+    classifier: str = "legacy_hgnn"  
     device: str = "cpu"
 
     sampling: SamplingConfig = field(default_factory=SamplingConfig)
@@ -111,9 +90,6 @@ class SegmentationConfig:
     objects: ObjectsConfig = field(default_factory=ObjectsConfig)
     output: OutputConfig = field(default_factory=OutputConfig)
 
-    # ------------------------------------------------------------------ #
-    # Loaders
-    # ------------------------------------------------------------------ #
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "SegmentationConfig":

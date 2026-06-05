@@ -1,24 +1,8 @@
-"""
-Serialization of segmentation results.
-
-Two coordinated output families (see MERGE.md §5[7]):
-
-* **MINC-style semantic segmentation** -- ``label_map.png`` (single-channel class ids,
-  ``0`` = background) plus ``labels.json`` (id -> material legend + metadata). Optional
-  ``label_map_color.png`` for visualization.
-* **COCO-style instances** -- ``instances.json`` (per-object bbox/area/score + RLE mask),
-  comparable to how SAM outputs are stored. Optional per-object PNGs.
-
-The COCO RLE encoder is self-contained (uncompressed, column-major counts) so
-``pycocotools`` is not required; if present it can decode these directly.
-"""
-
-from __future__ import annotations
-
 import colorsys
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from __future__ import annotations
 
 import numpy as np
 from PIL import Image
@@ -27,7 +11,6 @@ from segmentation.objects import BACKGROUND_ID, BACKGROUND_NAME, Instance
 
 
 def encode_rle(mask: np.ndarray) -> Dict:
-    """COCO-style uncompressed RLE (column-major). Returns ``{size, counts}``."""
     mask = np.asarray(mask, dtype=np.uint8)
     h, w = mask.shape
     flat = mask.flatten(order="F")
@@ -37,13 +20,13 @@ def encode_rle(mask: np.ndarray) -> Dict:
     bounds = np.concatenate(([0], change, [flat.size]))
     runs = np.diff(bounds).astype(int)
     counts = runs.tolist()
-    if flat[0] == 1:  # COCO counts must start with a run of 0s
+    if flat[0] == 1: 
         counts = [0] + counts
     return {"size": [int(h), int(w)], "counts": counts}
 
 
 def decode_rle(rle: Dict) -> np.ndarray:
-    """Inverse of ``encode_rle`` (handy for tests/visualization)."""
+    #decoder for testing/visualization
     h, w = rle["size"]
     counts = rle["counts"]
     flat = np.zeros(h * w, dtype=np.uint8)
@@ -58,7 +41,6 @@ def decode_rle(rle: Dict) -> np.ndarray:
 
 
 def build_palette(num_classes: int) -> np.ndarray:
-    """Deterministic ``(num_classes + 1, 3)`` uint8 palette; index 0 = black background."""
     palette = np.zeros((num_classes + 1, 3), dtype=np.uint8)
     for k in range(1, num_classes + 1):
         hue = ((k - 1) * 0.61803398875) % 1.0  # golden-ratio hue spacing
@@ -118,7 +100,6 @@ def save_results(
     write_color_viz: bool = True,
     write_instance_pngs: bool = False,
 ) -> Dict[str, str]:
-    """Write all artifacts to ``out_dir``. Returns a dict of written paths."""
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     num_classes = len(frontier_names)
@@ -126,13 +107,11 @@ def save_results(
 
     if num_classes > 255:
         raise ValueError("label map PNG supports up to 255 material classes")
-
-    # MINC-style semantic label map (single channel).
+    
     label_path = out_dir / "label_map.png"
     Image.fromarray(label_map.astype(np.uint8), mode="L").save(label_path)
     written["label_map"] = str(label_path)
 
-    # Legend + metadata.
     legend = build_legend(frontier_names)
     labels_payload = {"level": level, "legend": legend}
     if meta:

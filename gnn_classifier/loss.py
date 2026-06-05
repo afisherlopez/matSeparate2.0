@@ -14,9 +14,7 @@ def hierarchical_softmax_loss(
     reduction: str = "mean",
     enforce_participation: bool = True,
 ):
-    # logits: (batch_size, num_classes)
-    # targets: (batch_size, num_classes) - one-hot or multi-label
-    # hierarchy_levels: List of class indices for each level
+   
 
     if agg == "avg":
         coeff = lambda l: 1 / len(hierarchy_levels)
@@ -38,7 +36,7 @@ def hierarchical_softmax_loss(
     else:
         loss = 0.0
     for l, level in enumerate(hierarchy_levels):
-        level_logits = logits[:, level]  # Select logits for the current level
+        level_logits = logits[:, level] 
         level_targets = targets[:, level]
 
         participation = None
@@ -67,14 +65,14 @@ def greedy_loss(
     hierarchy_levels: List[np.ndarray],
 ) -> torch.Tensor:
     
-    # Loss on the full path
+    #full path loss
     path_loss = F.binary_cross_entropy_with_logits(
         node_logits, 
         labels_multihot, 
         reduction="none"
     ).mean(dim=1)
 
-    # Loss on the hierarchy
+    #hierarchy loss
     hierarchy_loss = hierarchical_softmax_loss(
         node_logits,
         labels_multihot,
@@ -84,7 +82,7 @@ def greedy_loss(
     )
 
 
-    # Winner-take-all loss
+    #winner take all loss
     loss = (
         torch.cat(
             (path_loss[..., None], hierarchy_loss[..., None]),

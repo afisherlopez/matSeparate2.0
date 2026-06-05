@@ -1,19 +1,3 @@
-"""
-Dense CRF refinement of the per-pixel probability map.
-
-Primary backend uses ``pydensecrf`` (Krähenbühl & Koltun fully-connected CRF) with a
-Gaussian smoothness term and an edge-aware bilateral term -- the step that snaps the blocky
-grid unaries to real image boundaries. Optionally the label-compatibility matrix is built
-from taxonomy distance so sibling-material confusions are penalized less than distant ones.
-
-Because ``pydensecrf`` is an unmaintained native dependency that can be hard to install,
-this module degrades gracefully:
-
-    dense  --(missing pydensecrf)-->  superpixel  --(missing skimage)-->  none
-
-All backends take and return a dense probability map ``(H, W, L)``.
-"""
-
 from __future__ import annotations
 
 import warnings
@@ -135,14 +119,7 @@ def refine(
     leaf_names: Optional[List[str]] = None,
     graph: Optional[nx.DiGraph] = None,
 ) -> np.ndarray:
-    """Refine a dense probability map. Returns a ``(H, W, L)`` float32 map.
 
-    Args:
-        image_uint8: (H, W, 3) uint8 RGB image (the bilateral term reads its colors).
-        p_dense: (H, W, L) dense leaf-probability map.
-        config: a ``CRFConfig``.
-        leaf_names / graph: needed only for taxonomy-aware compatibility.
-    """
     backend = config.backend
 
     if backend == "none":
@@ -152,15 +129,14 @@ def refine(
         if _have_module("pydensecrf"):
             return _refine_dense(image_uint8, p_dense, config, leaf_names, graph)
         warnings.warn(
-            "pydensecrf not installed; falling back to superpixel CRF backend. "
-            "Install with: pip install git+https://github.com/lucasb-eyer/pydensecrf.git"
+            "pydensecrf not installed, using superpixel."
         )
         backend = "superpixel"
 
     if backend == "superpixel":
         if _have_module("skimage"):
             return _refine_superpixel(image_uint8, p_dense, config)
-        warnings.warn("scikit-image not installed; skipping CRF refinement (backend=none).")
+        warnings.warn("scikit-image not installed, skipping CRF.")
         return p_dense.astype(np.float32)
 
     raise ValueError(f"unknown CRF backend: {config.backend}")

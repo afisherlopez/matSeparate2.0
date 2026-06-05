@@ -16,11 +16,6 @@ from taxonomy.tree import get_edge_index, get_hierarchy_mask, taxa_to_indices
 
 class Permute(nn.Module):
     def __init__(self, *dims):
-        """
-        Args:
-            dims: a permutation of the input tensor's dimensions.
-                  e.g. (0,2,3,1) to go from [B,C,H,W] → [B,H,W,C]
-        """
         super().__init__()
         self.dims = dims
 
@@ -30,13 +25,6 @@ class Permute(nn.Module):
 
 class Squeeze(nn.Module):
     def __init__(self, dim: Union[int, Tuple[int], None] = None):
-        """
-        Args:
-            dim:
-              - an int to squeeze that specific dimension if it's size 1,
-              - a tuple of ints to squeeze multiple dims (applied in order),
-              - or None to squeeze all size-1 dims.
-        """
         super().__init__()
         if isinstance(dim, tuple):
             self.dims = dim
@@ -75,7 +63,7 @@ class ImageEncoder(nn.Module):
         )
         classifier_input_dim = (
             backbone.get_classifier().in_features
-        )  # Get the input size of the classifier
+        )  
 
         # done for distrubted training, and cannot just be initialized in timm.create_model
         # afaict since we are also changing the pooling payer
@@ -330,13 +318,13 @@ class HGNN(nn.Module):
 
         i = 0
         while active.any() and i <= probabilities.shape[1]:
-            # Mark current nodes in the paths
+            #mark current nodes in the paths
             paths[
                 torch.arange(batch_size, device=probabilities.device)[active],
                 current_nodes[active],
             ] = 1
 
-            # Create one-hot encoding of current nodes
+            #create one-hot encoding of current nodes
             current_node_mask = torch.zeros(
                 batch_size, self.num_nodes, device=probabilities.device
             )
@@ -344,24 +332,23 @@ class HGNN(nn.Module):
                 torch.arange(batch_size, device=probabilities.device), current_nodes
             ] = 1
 
-            # Use adjacency matrix to find neighbors
+            #use adjacency matrix to find neighbors
             neighbor_scores = current_node_mask @ self.adjacency_matrix
             neighbor_probs = neighbor_scores * probabilities
 
-            # Check uncertainties
+            #check uncertainties
             if uncertainties is not None:
-                # Select the most probable neighbors
+                #select most probable neighbors
                 neighbor_uncs = neighbor_scores * uncertainties
                 next_nodes = torch.argmax(
                     torch.clamp(neighbor_probs - unc_penalty * neighbor_uncs, min=0),
                     dim=1,
-                )  # Shape: [batch_size]
+                )  
             else:
-                # Select the most probable neighbors
-                next_nodes = torch.argmax(neighbor_probs, dim=1)  # Shape: [batch_size]
+                next_nodes = torch.argmax(neighbor_probs, dim=1) 
 
-            # Update
-            next_probs = torch.max(neighbor_probs, dim=1).values  # Shape: [batch_size]
+            #update
+            next_probs = torch.max(neighbor_probs, dim=1).values  
             active = (neighbor_probs.sum(dim=1) > 0) & (next_probs >= prob_threshold)
             current_nodes = next_nodes
             i += 1
@@ -388,7 +375,7 @@ class HGNN(nn.Module):
         best_paths = [None] * batch_size
 
         for b in range(batch_size):
-            prob_vec = probabilities[b]  # shape: (num_nodes,)
+            prob_vec = probabilities[b]  
             unc_vec = uncertainties[b] if uncertainties is not None else None
             beam = [{"path": [start_node], "score": 0.0, "current_node": start_node}]
 
@@ -399,9 +386,9 @@ class HGNN(nn.Module):
                     current_node = candidate["current_node"]
                     neighbor_mask = self.adjacency_matrix[
                         current_node
-                    ]  # shape: (num_nodes,)
+                    ]  
                     for next_node in range(num_nodes):
-                        if neighbor_mask[next_node] > 0:  # valid neighbor
+                        if neighbor_mask[next_node] > 0:  #valid neighbor
                             prob_val = prob_vec[next_node].item()
                             if prob_val < prob_threshold:
                                 continue

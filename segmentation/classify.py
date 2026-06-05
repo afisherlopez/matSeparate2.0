@@ -1,13 +1,3 @@
-"""
-Patch classification: run the leaf-material classifier over sampled patches and
-assemble a coarse ``(gh, gw, num_leaves)`` probability grid.
-
-The classifier is abstracted behind a tiny ``LeafProbPredictor`` protocol so the pipeline
-can run with the real HGNN (``HGNNLeafPredictor``) or with a stub in tests. We always keep
-the **leaf softmax** distribution (a proper simplex), not the sigmoid node probs; coarser
-taxonomy levels are derived later by summing descendant leaves (see ``taxonomy_cut``).
-"""
-
 from __future__ import annotations
 
 from typing import Iterable, List, Protocol
@@ -18,7 +8,6 @@ from segmentation.patches import SampleResult
 
 
 def _progress(iterable: Iterable, total: int, desc: str, enabled: bool):
-    """Wrap an iterable in a tqdm bar if available/enabled, else return it unchanged."""
     if not enabled:
         return iterable
     try:
@@ -29,17 +18,14 @@ def _progress(iterable: Iterable, total: int, desc: str, enabled: bool):
 
 
 class LeafProbPredictor(Protocol):
-    """Anything that can turn a batch of HWC patches into leaf probabilities."""
 
     leaf_names: List[str]
 
     def predict_leaf_probs(self, patches: np.ndarray) -> np.ndarray:
-        """patches: (N, P, P, 3) -> (N, num_leaves) softmax over leaves."""
         ...
 
 
 class HGNNLeafPredictor:
-    """Adapter wrapping ``scripts.infer_api.HGNNInference`` as a ``LeafProbPredictor``."""
 
     def __init__(self, api, batch_size: int = 32, show_progress: bool = True):
         self.api = api
@@ -64,7 +50,6 @@ class HGNNLeafPredictor:
 
 
 class PatchClassifierPredictor:
-    """Adapter for patch_classifier.infer.PatchClassifierInference."""
 
     def __init__(self, api, batch_size: int = 32, show_progress: bool = True):
         self.api = api
@@ -87,12 +72,6 @@ class PatchClassifierPredictor:
 
 
 class StubLeafPredictor:
-    """A checkpoint-free predictor for testing plumbing / visualization.
-
-    Maps each patch to a near-one-hot leaf distribution based on its mean brightness, so
-    different image regions get different (arbitrary) materials. Predictions are
-    meaningless materials -- this only validates the pipeline and visuals, not quality.
-    """
 
     def __init__(self, leaf_names: List[str], num_buckets: int = 6):
         self.leaf_names = list(leaf_names)
@@ -112,7 +91,6 @@ class StubLeafPredictor:
 
 
 class PatchClassifier:
-    """Assembles a coarse leaf-probability grid from sampled patches."""
 
     def __init__(self, predictor: LeafProbPredictor):
         self.predictor = predictor
@@ -134,10 +112,10 @@ class PatchClassifier:
         return cls(PatchClassifierPredictor(api, batch_size=batch_size, show_progress=show_progress))
 
     def classify(self, sample: SampleResult) -> np.ndarray:
-        """Return P_grid with shape ``(gh, gw, num_leaves)`` (float32 simplex)."""
+        
         gh, gw = sample.grid_shape
         num_leaves = len(self.leaf_names)
-        probs = self.predictor.predict_leaf_probs(sample.patches)  # (N, L)
+        probs = self.predictor.predict_leaf_probs(sample.patches) 
         if probs.shape[0] != len(sample.grid_coords):
             raise ValueError(
                 f"predictor returned {probs.shape[0]} rows for "

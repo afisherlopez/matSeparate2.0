@@ -1,19 +1,6 @@
-"""
-From a frontier probability map to (a) a semantic label map and (b) per-object instance
-masks.
-
-An *object* is a spatially-connected component of a single material at the chosen level
-(so a wooden bowl touching a wooden table is one object). Low-confidence pixels (max class
-probability below ``bg_threshold``) are assigned to the reserved ``background/unknown``
-class, id ``0``. Material classes get ids ``1..K``.
-
-Connected components use ``scipy.ndimage`` (always available); ``skimage`` is not required.
-"""
-
-from __future__ import annotations
-
 from dataclasses import dataclass, field
 from typing import List, Tuple
+from __future__ import annotations
 
 import numpy as np
 from scipy import ndimage
@@ -24,7 +11,6 @@ BACKGROUND_NAME = "background"
 
 @dataclass
 class Instance:
-    """A single connected-component material object."""
 
     id: int
     material: str
@@ -39,15 +25,7 @@ def build_label_map(
     frontier_probs: np.ndarray,
     bg_threshold: float = 0.0,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Argmax a ``(H, W, K)`` frontier map into a ``(H, W)`` label map.
-
-    Returns ``(label_map, confidence)`` where ``label_map`` has ``1..K`` for materials and
-    ``0`` for background/unknown, and ``confidence`` is the per-pixel max class probability.
-
-    With the default ``bg_threshold == 0.0`` no pixel is ever sent to background: every
-    pixel simply takes its highest-probability label. A positive threshold reinstates the
-    background/unknown class for pixels whose top probability falls below it.
-    """
+    
     if frontier_probs.ndim != 3:
         raise ValueError(f"expected (H, W, K), got {frontier_probs.shape}")
     conf = frontier_probs.max(axis=-1)
@@ -75,7 +53,7 @@ def extract_instances(
     morph_close: bool = False,
     morph_close_radius: int = 2,
 ) -> List[Instance]:
-    """Connected-component objects from a label map, one per material region."""
+    
     structure = _structure(connectivity)
     instances: List[Instance] = []
     next_id = 1

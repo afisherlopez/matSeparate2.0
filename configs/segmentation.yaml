@@ -1,20 +1,18 @@
-# Default configuration for the material segmentation / merging pipeline.
-# See MERGE.md for the design rationale behind each block.
-
-classifier: legacy_hgnn  # legacy_hgnn | patch_classifier
+#default configuation for segmentation pipieline
+classifier: legacy_hgnn  
 run_dir: runs/c1_hgnn_baseline/avg_init_20260529_004313
-checkpoint: null         # patch_classifier checkpoint or run directory
-device: cpu            # torch_geometric scatter ops are broken on Apple MPS; use cpu
+checkpoint: null         
+device: cpu          #just for non-VM runs because of the annoying MPS thing
 
 sampling:
-  type: sliding         # sliding (overlapping, much finer) | grid (coarse, fast)
-  patch_size: 224       # grid tile size (and classifier input size)
-  window_area_pct: 1.0  # sliding: window side = sqrt(1.0% * H*W); overrides window_size
-  stride: null          # sliding: null -> auto = window // 2 (half the window; 2x overlap)
+  type: sliding         
+  patch_size: 224       
+  window_area_pct: 1.0  
+  stride: null          
   pad_mode: reflect
   batch_size: 32
-  min_patches: null     # sliding: if set, stride auto-adapts so patches >= this per image
-  max_patches: null     # sliding: if set, stride auto-adapts so patches <= this per image
+  min_patches: null     
+  max_patches: null     
 
 upsample:
   mode: bilinear
@@ -22,7 +20,7 @@ upsample:
   renormalize: true
 
 crf:
-  backend: dense        # dense (pydensecrf) | superpixel | none
+  backend: dense       
   n_iterations: 7
   gaussian_sxy: 3
   bilateral_sxy: 60
@@ -34,18 +32,17 @@ crf:
   superpixel_n_segments: 400
 
 level:
-  target: leaf          # "leaf" (default, most detailed) | integer depth to coarsen
-                        # e.g. 2 = biotic/abiotic, 3 = metal/rock/.../wood, etc.
-  shallow_leaf: keep    # leaves shallower than a requested depth keep their own label
+  target: leaf          
+  shallow_leaf: keep   
 
 objects:
-  bg_threshold: 0.0     # 0 = argmax everywhere (no background); raise to gate low-confidence px
-  connectivity: 8       # 4 or 8
-  min_object_area: 64   # pixels
-  morph_close: false    # gap bridging across occlusions (off; pure connectivity)
+  bg_threshold: 0.0     
+  connectivity: 8      
+  min_object_area: 64   
+  morph_close: false    
   morph_close_radius: 2
 
 output:
   write_color_viz: true
   write_instance_pngs: false
-  minc_crosswalk: null  # optional path to a Matador->MINC category mapping json
+  minc_crosswalk: null  
