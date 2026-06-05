@@ -175,6 +175,17 @@ def build_merger(cfg: SegmentationConfig):
     return MaterialMerger.from_run_dir(cfg.run_dir, config=cfg, device=cfg.device)
 
 
+def build_stub_merger(cfg: SegmentationConfig):
+    from segmentation.classify import PatchClassifier, StubLeafPredictor
+    from taxonomy.tree import get_taxonomy
+
+    graph = get_taxonomy(str(seg_root / "taxonomy" / "assets" / "matador-c1-taxonomy.json"))
+    leaves = sorted(node for node in graph.nodes() if graph.out_degree(node) == 0)
+    if cfg.crf.backend == "dense":
+        cfg.crf.backend = "none"
+    return MaterialMerger(PatchClassifier(StubLeafPredictor(leaves)), graph=graph, config=cfg)
+
+
 def write_csv(path: Path, rows: list[dict]):
     path.parent.mkdir(parents=True, exist_ok=True)
     if not rows:
@@ -218,7 +229,7 @@ def evaluate(args):
     )
     gt_mapped = set(crosswalk.values())
     cfg = make_config(args)
-    merger = build_merger(cfg)
+    merger = build_stub_merger(cfg) if args.stub else build_merger(cfg)
 
     image_rows, segment_rows = [], []
     for idx, (photo_id, samples) in enumerate(photos, start=1):
@@ -285,6 +296,7 @@ def main():
     parser.add_argument("--classifier", choices=["legacy_hgnn", "patch_classifier"], default="legacy_hgnn")
     parser.add_argument("--run-dir", type=Path, default=None)
     parser.add_argument("--checkpoint", type=Path, default=None)
+    parser.add_argument("--stub", action="store_true", help="use a fake classifier to test eval plumbing")
     parser.add_argument("--device", default="cuda")
     parser.add_argument("--max-images", type=int, default=None)
     parser.add_argument("--sampler", choices=["grid", "sliding"], default="sliding")
@@ -312,4 +324,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
