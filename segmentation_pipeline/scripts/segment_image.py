@@ -94,6 +94,13 @@ def main():
         action="store_true",
         help="disable taxonomy-aware CRF label compatibility (use scalar Potts instead)",
     )
+    parser.add_argument(
+        "--crf-backend",
+        type=str,
+        default=None,
+        choices=["dense", "superpixel", "none"],
+        help="override CRF backend",
+    )
     parser.add_argument("--viz", type=Path, default=None, help="save a composite panel figure here")
     parser.add_argument(
         "--compare-levels",
@@ -136,6 +143,8 @@ def main():
         config.objects.bg_threshold = args.bg_threshold
     if args.no_taxonomy_compat:
         config.crf.taxonomy_aware_compat = False
+    if args.crf_backend is not None:
+        config.crf.backend = args.crf_backend
 
     if args.stub:
         merger = _build_stub_merger(config)
