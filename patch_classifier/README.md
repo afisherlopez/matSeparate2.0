@@ -31,3 +31,14 @@ By default the dataset expects:
 Both names can be changed in the YAML file. For global-context training, add a
 context path column and set `data.context_col`.
 
+## Use in segmentation
+
+The segmentation pipeline can load a patch-classifier checkpoint directly:
+
+```bash
+python segmentation_pipeline/scripts/segment_image.py \
+  --classifier patch_classifier \
+  --checkpoint runs/hgnn/best.pt \
+  --image segmentation_pipeline/test_images/minc_1.jpg \
+  --out out/segmentation_hgnn
+```
