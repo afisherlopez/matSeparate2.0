@@ -51,6 +51,19 @@ def main():
     parser.add_argument("--out", type=Path, default=Path("out/segmentation"))
     parser.add_argument("--config", type=Path, default=None, help="optional YAML config")
     parser.add_argument("--run-dir", type=Path, default=None, help="HGNN run dir (overrides config)")
+    parser.add_argument(
+        "--checkpoint",
+        type=Path,
+        default=None,
+        help="patch_classifier checkpoint or run dir (overrides config)",
+    )
+    parser.add_argument(
+        "--classifier",
+        type=str,
+        default=None,
+        choices=["legacy_hgnn", "patch_classifier"],
+        help="which classifier loader to use",
+    )
     parser.add_argument("--level", type=_parse_level, default=None, help="'leaf' or int depth")
     parser.add_argument("--device", type=str, default=None, help="cpu | cuda | mps | auto")
     parser.add_argument("--sampler", type=str, default=None, choices=["grid", "sliding"],
@@ -81,6 +94,13 @@ def main():
         action="store_true",
         help="disable taxonomy-aware CRF label compatibility (use scalar Potts instead)",
     )
+    parser.add_argument(
+        "--crf-backend",
+        type=str,
+        default=None,
+        choices=["dense", "superpixel", "none"],
+        help="override CRF backend",
+    )
     parser.add_argument("--viz", type=Path, default=None, help="save a composite panel figure here")
     parser.add_argument(
         "--compare-levels",
@@ -102,6 +122,11 @@ def main():
 
     if args.run_dir is not None:
         config.run_dir = str(args.run_dir)
+    if args.checkpoint is not None:
+        config.checkpoint = str(args.checkpoint)
+        config.classifier = "patch_classifier"
+    if args.classifier is not None:
+        config.classifier = args.classifier
     if args.device is not None:
         config.device = args.device
     if args.sampler is not None:
@@ -118,15 +143,24 @@ def main():
         config.objects.bg_threshold = args.bg_threshold
     if args.no_taxonomy_compat:
         config.crf.taxonomy_aware_compat = False
+    if args.crf_backend is not None:
+        config.crf.backend = args.crf_backend
 
     if args.stub:
         merger = _build_stub_merger(config)
     else:
-        if config.run_dir is None:
-            parser.error("a run_dir is required (via --run-dir or the config file), or pass --stub")
-        merger = MaterialMerger.from_run_dir(
-            config.run_dir, config=config, device=config.device
-        )
+        if config.classifier == "patch_classifier":
+            if config.checkpoint is None:
+                parser.error("a checkpoint is required for --classifier patch_classifier")
+            merger = MaterialMerger.from_patch_classifier(
+                config.checkpoint, config=config, device=config.device
+            )
+        else:
+            if config.run_dir is None:
+                parser.error("a run_dir is required (via --run-dir or the config file), or pass --stub")
+            merger = MaterialMerger.from_run_dir(
+                config.run_dir, config=config, device=config.device
+            )
 
     import time
 

@@ -1,7 +1,9 @@
 # Default configuration for the material segmentation / merging pipeline.
 # See MERGE.md for the design rationale behind each block.
 
+classifier: legacy_hgnn  # legacy_hgnn | patch_classifier
 run_dir: runs/c1_hgnn_baseline/avg_init_20260529_004313
+checkpoint: null         # patch_classifier checkpoint or run directory
 device: cpu            # torch_geometric scatter ops are broken on Apple MPS; use cpu
 
 sampling:

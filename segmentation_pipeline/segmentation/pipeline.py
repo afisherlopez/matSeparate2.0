@@ -127,6 +127,34 @@ class MaterialMerger:
         graph = cls._load_graph(run_dir, repo_root, get_taxonomy)
         return cls(classifier=classifier, graph=graph, config=config)
 
+    @classmethod
+    def from_patch_classifier(
+        cls,
+        checkpoint: Union[str, Path],
+        config: Optional[SegmentationConfig] = None,
+        device: str = "auto",
+    ) -> "MaterialMerger":
+        import sys
+
+        seg_root = Path(__file__).resolve().parent.parent
+        repo_root = seg_root.parent
+        for path in (repo_root, seg_root):
+            if str(path) not in sys.path:
+                sys.path.insert(0, str(path))
+
+        from patch_classifier.infer import PatchClassifierInference
+
+        config = config or SegmentationConfig()
+        checkpoint = Path(checkpoint)
+        if checkpoint.is_dir():
+            api = PatchClassifierInference.from_run_dir(checkpoint, device=device)
+        else:
+            api = PatchClassifierInference.from_checkpoint(checkpoint, device=device)
+        classifier = PatchClassifier.from_patch_classifier(
+            api, batch_size=config.sampling.batch_size
+        )
+        return cls(classifier=classifier, graph=api.taxonomy.graph, config=config)
+
     @staticmethod
     def _load_graph(run_dir, repo_root, get_taxonomy) -> nx.DiGraph:
         import yaml

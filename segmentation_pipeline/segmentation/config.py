@@ -99,6 +99,8 @@ class SegmentationConfig:
     """Top-level configuration for ``MaterialMerger``."""
 
     run_dir: Optional[str] = None  # HGNN training run directory (config/ckpt/node_index)
+    checkpoint: Optional[str] = None  # patch_classifier checkpoint or run directory
+    classifier: str = "legacy_hgnn"  # "legacy_hgnn" | "patch_classifier"
     # "cpu" by default: torch_geometric's scatter ops are broken on Apple MPS.
     device: str = "cpu"
 
