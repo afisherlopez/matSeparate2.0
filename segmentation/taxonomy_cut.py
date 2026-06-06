@@ -1,16 +1,3 @@
-"""
-Taxonomy level cut: aggregate leaf-material probabilities to a chosen level.
-
-Default level ``"leaf"`` keeps the full set of leaf materials (most detailed). Passing an
-integer depth ``d`` coarsens the segmentation: each leaf maps to its ancestor at depth
-``d``. A leaf shallower than ``d`` keeps its own label (``shallow_leaf="keep"``), which
-preserves detail; for the Matador-C1 tree this only matters for ``generic_metal`` (depth 4)
-at the never-coarsening case ``d = 5``.
-
-The aggregation is a single ``(L -> K)`` 0/1 matrix ``A`` so that
-``F = P_leaf @ A`` and any level is one cheap matmul away from the cached leaf map.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -22,11 +9,10 @@ import numpy as np
 
 @dataclass
 class FrontierCut:
-    """A resolved taxonomy cut: the frontier class names and the leaf->frontier matrix."""
 
-    frontier_names: List[str]  # length K, the class names at this level
-    aggregation: np.ndarray  # (L, K) 0/1, row-stochastic (each leaf -> exactly one class)
-    leaf_names: List[str]  # length L, the leaf ordering this matrix expects
+    frontier_names: List[str] 
+    aggregation: np.ndarray  
+    leaf_names: List[str]  
     level: Union[str, int]
 
 
@@ -41,7 +27,6 @@ def build_frontier(
     shallow_leaf: str = "keep",
     root: str = "root",
 ) -> FrontierCut:
-    """Resolve a level into frontier class names + a leaf->frontier aggregation matrix."""
     num_leaves = len(leaf_names)
 
     if level == "leaf":
@@ -55,17 +40,17 @@ def build_frontier(
 
     depths = _node_depths(graph, root)
 
-    # Map each leaf to its representative node at the requested depth.
+    #map each leaf to representative node at requested depth
     leaf_to_rep: List[str] = []
     for leaf in leaf_names:
         if leaf not in graph:
             raise ValueError(f"leaf '{leaf}' not found in taxonomy graph")
-        path = nx.shortest_path(graph, root, leaf)  # [root, ..., leaf]
+        path = nx.shortest_path(graph, root, leaf)  
         leaf_depth = len(path) - 1
         if leaf_depth >= level:
             rep = path[level]
         else:
-            # Leaf is shallower than the requested depth.
+            #leaf is shallower than requested depth
             if shallow_leaf == "keep":
                 rep = leaf
             elif shallow_leaf == "parent":
@@ -85,7 +70,6 @@ def build_frontier(
 
 
 def apply_frontier(p_leaf_dense: np.ndarray, cut: FrontierCut) -> np.ndarray:
-    """Aggregate a dense leaf-prob map ``(H, W, L)`` to ``(H, W, K)`` at the cut level."""
     if p_leaf_dense.shape[-1] != cut.aggregation.shape[0]:
         raise ValueError(
             f"leaf dim {p_leaf_dense.shape[-1]} != aggregation rows "
@@ -93,5 +77,5 @@ def apply_frontier(p_leaf_dense: np.ndarray, cut: FrontierCut) -> np.ndarray:
         )
     h, w, _ = p_leaf_dense.shape
     flat = p_leaf_dense.reshape(-1, p_leaf_dense.shape[-1])
-    frontier = flat @ cut.aggregation  # (H*W, K)
+    frontier = flat @ cut.aggregation 
     return frontier.reshape(h, w, cut.aggregation.shape[1]).astype(np.float32)

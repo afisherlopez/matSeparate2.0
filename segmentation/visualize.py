@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-from __future__ import annotations
 
 import matplotlib
 

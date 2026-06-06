@@ -7,7 +7,7 @@ device: cpu          #just for non-VM runs because of the annoying MPS thing
 sampling:
   type: sliding         
   patch_size: 224       
-  window_area_pct: 1.0  
+  window_area_pct: 1.5  # sliding: window side = sqrt(1.5% * H*W)
   stride: null          
   pad_mode: reflect
   batch_size: 32

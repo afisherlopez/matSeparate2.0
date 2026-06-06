@@ -1,13 +1,3 @@
-"""
-``MaterialMerger`` -- end-to-end orchestration of the material segmentation pipeline.
-
-    image -> grid patches -> HGNN leaf probs -> bilinear upsample -> dense CRF
-          -> taxonomy level cut -> label map + connected-component objects -> export
-
-The CRF-refined **leaf** probability map is cached on the result, so re-cutting to a
-coarser level (``recut``) is a single cheap matmul -- no re-classification or CRF.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -29,7 +19,6 @@ from segmentation.upsample import upsample_probs
 
 
 def load_image_uint8(image: Union[str, Path, Image.Image, np.ndarray]) -> np.ndarray:
-    """Coerce arbitrary image input to an ``(H, W, 3)`` uint8 RGB array."""
     if isinstance(image, (str, Path)):
         image = Image.open(image).convert("RGB")
     if isinstance(image, Image.Image):
@@ -50,7 +39,6 @@ def load_image_uint8(image: Union[str, Path, Image.Image, np.ndarray]) -> np.nda
 
 @dataclass
 class SegmentationResult:
-    """Outputs of one segmentation, plus cached state enabling cheap re-cuts."""
 
     label_map: np.ndarray
     frontier_names: List[str]
@@ -86,7 +74,6 @@ class SegmentationResult:
 
 
 class MaterialMerger:
-    """Coordinates sampler, classifier, CRF, taxonomy cut, and object extraction."""
 
     def __init__(
         self,
@@ -99,10 +86,6 @@ class MaterialMerger:
         self.config = config or SegmentationConfig()
         self.sampler = build_sampler(self.config.sampling)
         self.leaf_names = classifier.leaf_names
-
-    # ------------------------------------------------------------------ #
-    # Factory
-    # ------------------------------------------------------------------ #
 
     @classmethod
     def from_run_dir(
@@ -170,10 +153,6 @@ class MaterialMerger:
             if cand and Path(cand).exists():
                 return get_taxonomy(str(cand))
         return get_taxonomy()  # packaged default
-
-    # ------------------------------------------------------------------ #
-    # Core
-    # ------------------------------------------------------------------ #
 
     def segment(
         self,

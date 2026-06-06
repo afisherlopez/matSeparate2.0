@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import colorsys
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from __future__ import annotations
 
 import numpy as np
 from PIL import Image

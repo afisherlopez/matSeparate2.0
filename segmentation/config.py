@@ -16,7 +16,7 @@ class SamplingConfig:
     batch_size: int = 32  
     
     window_size: int = 96  
-    window_area_pct: Optional[float] = None
+    window_area_pct: Optional[float] = 1.5
     stride: Optional[int] = 48  
     min_patches: Optional[int] = None
     max_patches: Optional[int] = None

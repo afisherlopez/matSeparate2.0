@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import List, Tuple
-from __future__ import annotations
 
 import numpy as np
 from scipy import ndimage
