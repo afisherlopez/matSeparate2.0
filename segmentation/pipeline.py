@@ -1,13 +1,3 @@
-"""
-``MaterialMerger`` -- end-to-end orchestration of the material segmentation pipeline.
-
-    image -> grid patches -> HGNN leaf probs -> bilinear upsample -> dense CRF
-          -> taxonomy level cut -> label map + connected-component objects -> export
-
-The CRF-refined **leaf** probability map is cached on the result, so re-cutting to a
-coarser level (``recut``) is a single cheap matmul -- no re-classification or CRF.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -29,7 +19,6 @@ from segmentation.upsample import upsample_probs
 
 
 def load_image_uint8(image: Union[str, Path, Image.Image, np.ndarray]) -> np.ndarray:
-    """Coerce arbitrary image input to an ``(H, W, 3)`` uint8 RGB array."""
     if isinstance(image, (str, Path)):
         image = Image.open(image).convert("RGB")
     if isinstance(image, Image.Image):
@@ -50,8 +39,6 @@ def load_image_uint8(image: Union[str, Path, Image.Image, np.ndarray]) -> np.nda
 
 @dataclass
 class SegmentationResult:
-    """Outputs of one segmentation, plus cached state enabling cheap re-cuts."""
-
     label_map: np.ndarray
     frontier_names: List[str]
     instances: List[Instance]
@@ -86,8 +73,6 @@ class SegmentationResult:
 
 
 class MaterialMerger:
-    """Coordinates sampler, classifier, CRF, taxonomy cut, and object extraction."""
-
     def __init__(
         self,
         classifier: PatchClassifier,
@@ -99,33 +84,6 @@ class MaterialMerger:
         self.config = config or SegmentationConfig()
         self.sampler = build_sampler(self.config.sampling)
         self.leaf_names = classifier.leaf_names
-
-    # ------------------------------------------------------------------ #
-    # Factory
-    # ------------------------------------------------------------------ #
-
-    @classmethod
-    def from_run_dir(
-        cls,
-        run_dir: Union[str, Path],
-        config: Optional[SegmentationConfig] = None,
-        device: str = "auto",
-    ) -> "MaterialMerger":
-        import sys
-
-        repo_root = Path(__file__).resolve().parent.parent
-        if str(repo_root) not in sys.path:
-            sys.path.insert(0, str(repo_root))
-
-        from tools.infer_api import HGNNInference
-        from taxonomy.tree import get_taxonomy
-
-        config = config or SegmentationConfig()
-        api = HGNNInference.from_run_dir(run_dir, device=device)
-        classifier = PatchClassifier.from_hgnn(api, batch_size=config.sampling.batch_size)
-
-        graph = cls._load_graph(run_dir, repo_root, get_taxonomy)
-        return cls(classifier=classifier, graph=graph, config=config)
 
     @classmethod
     def from_patch_classifier(
@@ -154,26 +112,6 @@ class MaterialMerger:
             api, batch_size=config.sampling.batch_size
         )
         return cls(classifier=classifier, graph=api.taxonomy.graph, config=config)
-
-    @staticmethod
-    def _load_graph(run_dir, repo_root, get_taxonomy) -> nx.DiGraph:
-        import yaml
-
-        run_dir = Path(run_dir)
-        with open(run_dir / "config.yaml") as f:
-            run_config = yaml.safe_load(f)
-        tax_path = run_config.get("data", {}).get("taxonomy_json")
-        candidates = []
-        if tax_path:
-            candidates += [Path(tax_path), repo_root / tax_path]
-        for cand in candidates:
-            if cand and Path(cand).exists():
-                return get_taxonomy(str(cand))
-        return get_taxonomy()  # packaged default
-
-    # ------------------------------------------------------------------ #
-    # Core
-    # ------------------------------------------------------------------ #
 
     def segment(
         self,
@@ -208,7 +146,6 @@ class MaterialMerger:
     def recut(
         self, result: SegmentationResult, level: Union[str, int]
     ) -> SegmentationResult:
-        """Re-derive a (typically coarser) level from cached refined leaf probs."""
         return self._finish(result.refined_leaf_probs, result.image_uint8, level)
 
     def _finish(

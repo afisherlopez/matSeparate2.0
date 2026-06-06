@@ -2,7 +2,6 @@ import colorsys
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from __future__ import annotations
 
 import numpy as np
 from PIL import Image
@@ -20,13 +19,12 @@ def encode_rle(mask: np.ndarray) -> Dict:
     bounds = np.concatenate(([0], change, [flat.size]))
     runs = np.diff(bounds).astype(int)
     counts = runs.tolist()
-    if flat[0] == 1: 
+    if flat[0] == 1:
         counts = [0] + counts
     return {"size": [int(h), int(w)], "counts": counts}
 
 
 def decode_rle(rle: Dict) -> np.ndarray:
-    #decoder for testing/visualization
     h, w = rle["size"]
     counts = rle["counts"]
     flat = np.zeros(h * w, dtype=np.uint8)
@@ -43,7 +41,7 @@ def decode_rle(rle: Dict) -> np.ndarray:
 def build_palette(num_classes: int) -> np.ndarray:
     palette = np.zeros((num_classes + 1, 3), dtype=np.uint8)
     for k in range(1, num_classes + 1):
-        hue = ((k - 1) * 0.61803398875) % 1.0  # golden-ratio hue spacing
+        hue = ((k - 1) * 0.61803398875) % 1.0
         r, g, b = colorsys.hsv_to_rgb(hue, 0.65, 0.95)
         palette[k] = (int(r * 255), int(g * 255), int(b * 255))
     return palette
@@ -107,7 +105,7 @@ def save_results(
 
     if num_classes > 255:
         raise ValueError("label map PNG supports up to 255 material classes")
-    
+
     label_path = out_dir / "label_map.png"
     Image.fromarray(label_map.astype(np.uint8), mode="L").save(label_path)
     written["label_map"] = str(label_path)
@@ -121,21 +119,18 @@ def save_results(
         json.dump(labels_payload, f, indent=2)
     written["labels"] = str(labels_path)
 
-    # COCO-style instances.
     coco = instances_to_coco(instances, image_size, level)
     inst_path = out_dir / "instances.json"
     with open(inst_path, "w") as f:
         json.dump(coco, f, indent=2)
     written["instances"] = str(inst_path)
 
-    # Optional color visualization.
     if write_color_viz:
         color = colorize_label_map(label_map, num_classes)
         color_path = out_dir / "label_map_color.png"
         Image.fromarray(color, mode="RGB").save(color_path)
         written["label_map_color"] = str(color_path)
 
-    # Optional per-object binary masks.
     if write_instance_pngs and instances:
         inst_dir = out_dir / "instances"
         inst_dir.mkdir(exist_ok=True)

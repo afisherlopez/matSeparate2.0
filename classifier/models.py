@@ -18,8 +18,6 @@ class ResNetPatchClassifier(nn.Module):
 
 
 class GlobalResNetPatchClassifier(nn.Module):
-    """Two ResNet encoders. One sees the local patch, the other sees wider context."""
-
     def __init__(
         self,
         num_classes: int,
@@ -62,13 +60,6 @@ class GATBlock(nn.Module):
 
 
 class HGNNPatchClassifier(nn.Module):
-    """End-to-end image encoder + taxonomy graph classifier.
-
-    A learned node embedding is kept for every taxonomy node. For each image, we add
-    one image node connected to every taxonomy node, run a small GAT, then predict
-    logits for all taxonomy nodes.
-    """
-
     def __init__(
         self,
         taxonomy: Taxonomy,

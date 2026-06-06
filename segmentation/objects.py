@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 from typing import List, Tuple
-from __future__ import annotations
 
 import numpy as np
 from scipy import ndimage
@@ -11,26 +10,24 @@ BACKGROUND_NAME = "background"
 
 @dataclass
 class Instance:
-
     id: int
     material: str
-    category_id: int  # frontier class id (1..K)
+    category_id: int
     bbox: Tuple[int, int, int, int]  # COCO xywh
     area: int
     score: float
-    mask: np.ndarray = field(repr=False)  # (H, W) bool
+    mask: np.ndarray = field(repr=False)
 
 
 def build_label_map(
     frontier_probs: np.ndarray,
     bg_threshold: float = 0.0,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    
     if frontier_probs.ndim != 3:
         raise ValueError(f"expected (H, W, K), got {frontier_probs.shape}")
     conf = frontier_probs.max(axis=-1)
     arg = frontier_probs.argmax(axis=-1).astype(np.int32)
-    label_map = arg + 1  # shift so material ids start at 1
+    label_map = arg + 1
     if bg_threshold > 0.0:
         label_map[conf < bg_threshold] = BACKGROUND_ID
     return label_map.astype(np.int32), conf.astype(np.float32)
@@ -53,13 +50,11 @@ def extract_instances(
     morph_close: bool = False,
     morph_close_radius: int = 2,
 ) -> List[Instance]:
-    
     structure = _structure(connectivity)
     instances: List[Instance] = []
     next_id = 1
 
-    num_classes = len(frontier_names)
-    for class_id in range(1, num_classes + 1):
+    for class_id in range(1, len(frontier_names) + 1):
         class_mask = label_map == class_id
         if not class_mask.any():
             continue
@@ -73,8 +68,7 @@ def extract_instances(
         if n_comp == 0:
             continue
 
-        objects = ndimage.find_objects(labeled)
-        for comp_idx, sl in enumerate(objects, start=1):
+        for comp_idx, sl in enumerate(ndimage.find_objects(labeled), start=1):
             if sl is None:
                 continue
             comp_mask = labeled == comp_idx
@@ -86,7 +80,6 @@ def extract_instances(
             y0, x0 = ys.start, xs.start
             h = ys.stop - ys.start
             w = xs.stop - xs.start
-            score = float(confidence[comp_mask].mean())
 
             instances.append(
                 Instance(
@@ -95,7 +88,7 @@ def extract_instances(
                     category_id=class_id,
                     bbox=(int(x0), int(y0), int(w), int(h)),
                     area=area,
-                    score=score,
+                    score=float(confidence[comp_mask].mean()),
                     mask=comp_mask,
                 )
             )

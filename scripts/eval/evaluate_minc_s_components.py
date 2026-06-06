@@ -164,13 +164,9 @@ def make_config(args) -> SegmentationConfig:
 
 
 def build_merger(cfg: SegmentationConfig):
-    if cfg.classifier == "patch_classifier":
-        if not cfg.checkpoint:
-            raise ValueError("--checkpoint is required for --classifier patch_classifier")
-        return MaterialMerger.from_patch_classifier(cfg.checkpoint, config=cfg, device=cfg.device)
-    if not cfg.run_dir:
-        raise ValueError("--run-dir is required for --classifier legacy_hgnn")
-    return MaterialMerger.from_run_dir(cfg.run_dir, config=cfg, device=cfg.device)
+    if not cfg.checkpoint:
+        raise ValueError("--checkpoint is required")
+    return MaterialMerger.from_patch_classifier(cfg.checkpoint, config=cfg, device=cfg.device)
 
 
 def build_stub_merger(cfg: SegmentationConfig):
@@ -291,7 +287,7 @@ def main():
     parser.add_argument("--segments-txt", type=Path, default=None)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--config", type=Path, default=None)
-    parser.add_argument("--classifier", choices=["legacy_hgnn", "patch_classifier"], default="legacy_hgnn")
+    parser.add_argument("--classifier", choices=["patch_classifier"], default="patch_classifier")
     parser.add_argument("--run-dir", type=Path, default=None)
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--stub", action="store_true", help="use a fake classifier to test eval plumbing")

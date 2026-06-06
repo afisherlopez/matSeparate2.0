@@ -1,16 +1,3 @@
-"""
-Semantic segmentation metrics for the material merging pipeline.
-
-Compares predicted material **label maps** (MINC-style, integer class ids + a legend) to
-ground-truth label maps, reporting per-class IoU, mean IoU, mean class accuracy, and
-pixel accuracy -- the metrics MINC reports for full-scene material classification.
-
-Because our taxonomy is not MINC's 23 categories, prediction and GT label maps usually
-live in different id spaces. ``align_to_shared_space`` re-maps both into a common
-**name-based** id space (with an optional name crosswalk), assigning any name present on
-only one side to the ignored ``background`` id (0).
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -48,11 +35,6 @@ def build_confusion(
     num_classes: int,
     ignore_ids: Tuple[int, ...] = (BACKGROUND_ID,),
 ) -> np.ndarray:
-    """Confusion matrix (rows = GT class, cols = predicted class).
-
-    Pixels whose GT id is in ``ignore_ids`` are excluded. ``num_classes`` is the size of
-    the (shared) id space *including* the background id at 0.
-    """
     if pred.shape != gt.shape:
         raise ValueError(f"pred/gt shape mismatch: {pred.shape} vs {gt.shape}")
     valid = np.ones(gt.shape, dtype=bool)
@@ -60,7 +42,6 @@ def build_confusion(
         valid &= gt != ig
     g = gt[valid].astype(np.int64)
     p = pred[valid].astype(np.int64)
-    # clip stray predicted ids into range so bincount stays bounded
     p = np.clip(p, 0, num_classes - 1)
     g = np.clip(g, 0, num_classes - 1)
     idx = g * num_classes + p
@@ -73,11 +54,6 @@ def metrics_from_confusion(
     class_names: List[str],
     ignore_ids: Tuple[int, ...] = (BACKGROUND_ID,),
 ) -> SegMetrics:
-    """Derive IoU / accuracy metrics from a confusion matrix.
-
-    Classes are scored only if they are *present in the GT* (their row has support) and
-    not in ``ignore_ids``.
-    """
     cm = cm.astype(np.float64)
     tp = np.diag(cm)
     gt_totals = cm.sum(axis=1)
@@ -122,17 +98,6 @@ def build_shared_space(
     gt_legend: Dict[str, str],
     crosswalk: Optional[Dict[str, str]] = None,
 ) -> Tuple[List[str], Dict[int, int], Dict[int, int]]:
-    """Build a shared name-based id space for two legends.
-
-    Args:
-        pred_legend / gt_legend: ``{id_str: name}`` legends (id 0 == background).
-        crosswalk: optional mapping ``{pred_name: gt_name}`` to align differing
-            vocabularies (e.g. Matador -> MINC). Names not mapped pass through unchanged.
-
-    Returns:
-        ``(class_names, pred_id_remap, gt_id_remap)`` where ``class_names[0] == background``
-        and the remaps send original ids -> shared ids (unknown names -> 0).
-    """
     crosswalk = crosswalk or {}
 
     def pred_name(name: str) -> str:
@@ -160,16 +125,6 @@ def remap_label_map(label_map: np.ndarray, remap: Dict[int, int]) -> np.ndarray:
     return out
 
 
-# --------------------------------------------------------------------------- #
-# Class-agnostic mask / partition similarity
-#
-# These compare two segmentations purely as partitions of the pixels -- the
-# label *values* are irrelevant, only which pixels are grouped together. Use
-# this to compare our masks to MINC's masks (or SAM's) when the classes do not
-# need to match.
-# --------------------------------------------------------------------------- #
-
-
 @dataclass
 class MaskAgreement:
     adjusted_rand_index: float  # 1 = identical partition, 0 = chance
@@ -192,7 +147,6 @@ def _relabel_consecutive(label_map: np.ndarray):
 
 
 def to_connected_components(label_map: np.ndarray, connectivity: int = 8) -> np.ndarray:
-    """Split a (semantic) label map into per-region instance ids via connected components."""
     from scipy import ndimage
 
     structure = (
@@ -266,7 +220,6 @@ def _region_ious(gt: np.ndarray, pred: np.ndarray):
 
 
 def segmentation_covering(gt: np.ndarray, pred: np.ndarray) -> float:
-    """Covering of GT by pred: size-weighted mean of each GT region's best IoU."""
     iou, _, gt_sizes, _ = _region_ious(gt, pred)
     n = gt_sizes.sum()
     if n == 0:
@@ -290,7 +243,6 @@ def _boundaries(label_map: np.ndarray) -> np.ndarray:
 
 
 def boundary_f1(gt: np.ndarray, pred: np.ndarray, tolerance: int = 2) -> float:
-    """Boundary F1: precision/recall of boundary pixels within ``tolerance`` px."""
     from scipy import ndimage
 
     gb = _boundaries(gt)
@@ -299,11 +251,10 @@ def boundary_f1(gt: np.ndarray, pred: np.ndarray, tolerance: int = 2) -> float:
         return 1.0
     if not gb.any() or not pb.any():
         return 0.0
-    # distance from every pixel to the nearest GT / pred boundary
     dist_to_gt = ndimage.distance_transform_edt(~gb)
     dist_to_pred = ndimage.distance_transform_edt(~pb)
-    precision = (dist_to_gt[pb] <= tolerance).mean()  # pred boundary near a GT boundary
-    recall = (dist_to_pred[gb] <= tolerance).mean()  # GT boundary near a pred boundary
+    precision = (dist_to_gt[pb] <= tolerance).mean()
+    recall = (dist_to_pred[gb] <= tolerance).mean()
     if precision + recall == 0:
         return 0.0
     return float(2 * precision * recall / (precision + recall))
@@ -316,13 +267,6 @@ def mask_agreement(
     connectivity: int = 8,
     boundary_tolerance: int = 2,
 ) -> MaskAgreement:
-    """Class-agnostic comparison of two segmentations as pixel partitions.
-
-    Args:
-        pred_label_map / gt_label_map: integer label maps (label values ignored).
-        connected: if True, first split each label into connected components so the
-            comparison is over spatial *regions* (instance-like) rather than label classes.
-    """
     if pred_label_map.shape != gt_label_map.shape:
         raise ValueError(
             f"shape mismatch: pred {pred_label_map.shape} vs gt {gt_label_map.shape}"

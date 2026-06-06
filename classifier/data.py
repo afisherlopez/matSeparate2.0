@@ -14,13 +14,6 @@ from classifier.taxonomy import Taxonomy
 
 
 class PatchDataset(Dataset):
-    """CSV-backed dataset for local material patches, with optional global context.
-
-    The manifest only needs a label column and an image path column. For Matador-C1
-    these are usually `c1_label` and `image_path`. If `context_col` is provided, a
-    second image is loaded and returned as `context_image`.
-    """
-
     def __init__(
         self,
         manifest_csv: str | Path,

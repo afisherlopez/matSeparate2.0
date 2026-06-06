@@ -25,30 +25,6 @@ class LeafProbPredictor(Protocol):
         ...
 
 
-class HGNNLeafPredictor:
-
-    def __init__(self, api, batch_size: int = 32, show_progress: bool = True):
-        self.api = api
-        self.batch_size = batch_size
-        self.show_progress = show_progress
-        self.leaf_names: List[str] = list(api.leaf_names)
-
-    def predict_leaf_probs(self, patches: np.ndarray) -> np.ndarray:
-        n = patches.shape[0]
-        out = np.empty((n, len(self.leaf_names)), dtype=np.float32)
-        starts = list(range(0, n, self.batch_size))
-        for start in _progress(
-            starts, total=len(starts), desc="classifying patches", enabled=self.show_progress
-        ):
-            chunk = [patches[i] for i in range(start, min(start + self.batch_size, n))]
-            results = self.api.infer_batch(
-                chunk, return_probs=True, decode_path=False
-            )
-            for j, res in enumerate(results):
-                out[start + j] = np.asarray(res["leaf_probs"], dtype=np.float32)
-        return out
-
-
 class PatchClassifierPredictor:
 
     def __init__(self, api, batch_size: int = 32, show_progress: bool = True):
@@ -98,12 +74,6 @@ class PatchClassifier:
     @property
     def leaf_names(self) -> List[str]:
         return list(self.predictor.leaf_names)
-
-    @classmethod
-    def from_hgnn(
-        cls, api, batch_size: int = 32, show_progress: bool = True
-    ) -> "PatchClassifier":
-        return cls(HGNNLeafPredictor(api, batch_size=batch_size, show_progress=show_progress))
 
     @classmethod
     def from_patch_classifier(

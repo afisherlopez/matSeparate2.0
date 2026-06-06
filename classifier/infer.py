@@ -16,8 +16,6 @@ from classifier.train import make_model
 
 
 class PatchClassifierInference:
-    """Small inference wrapper for checkpoints trained by patch_classifier.train."""
-
     def __init__(self, model, taxonomy: Taxonomy, config: dict, device: torch.device):
         self.model = model.to(device).eval()
         self.taxonomy = taxonomy

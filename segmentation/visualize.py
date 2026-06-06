@@ -1,16 +1,14 @@
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-from __future__ import annotations
 
 import matplotlib
-
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt 
-import numpy as np  
-from matplotlib.patches import Patch  
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.patches import Patch
 
-from segmentation.formats import build_palette  
-from segmentation.objects import BACKGROUND_ID  
+from segmentation.formats import build_palette
+from segmentation.objects import BACKGROUND_ID
 
 
 def semantic_overlay(
@@ -19,7 +17,6 @@ def semantic_overlay(
     num_classes: int,
     alpha: float = 0.5,
 ) -> np.ndarray:
-
     palette = build_palette(num_classes)
     color = palette[np.clip(label_map, 0, num_classes)].astype(np.float32)
     base = image_uint8.astype(np.float32)
@@ -34,7 +31,6 @@ def instance_overlay(
     instances,
     alpha: float = 0.55,
 ) -> np.ndarray:
-
     base = image_uint8.astype(np.float32)
     out = base.copy()
     palette = build_palette(max(len(instances), 1))
@@ -65,7 +61,6 @@ def save_panel(
     alpha: float = 0.5,
     dpi: int = 130,
 ) -> str:
-    
     num_classes = len(result.frontier_names)
     sem = semantic_overlay(image_uint8, result.label_map, num_classes, alpha=alpha)
     inst = instance_overlay(image_uint8, result.instances, alpha=alpha + 0.05)
@@ -113,7 +108,6 @@ def save_level_comparison(
     dpi: int = 130,
     show_input: bool = True,
 ) -> str:
-    
     if result._merger is None:
         raise RuntimeError("result must be attached to a MaterialMerger to re-cut levels")
 
@@ -159,7 +153,6 @@ def save_overlays(
     result,
     alpha: float = 0.5,
 ) -> Dict[str, str]:
-    
     from PIL import Image
 
     out_dir = Path(out_dir)
