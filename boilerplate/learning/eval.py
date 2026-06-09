@@ -1,4 +1,4 @@
-"""Evaluate a patch classifier on Matador-C1 (fixed boilerplate eval).
+"""Evaluate a patch classifier on Matador-C1.
 
 Reports top-1 accuracy at each taxonomy level: state,
 composition, form, and material (leaf). For HGNN models the internal-level

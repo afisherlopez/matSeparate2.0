@@ -4,7 +4,7 @@ At the leaf level the projection is the identity. At an internal taxonomy level
 (integer depth), each leaf probability is assigned to its ancestor at that depth
 via a binary leaf-to-frontier aggregation matrix:
 
-    P_frontier = P_leaf @ A,    A in {0, 1}^(L x K)
+P_frontier = P_leaf @ A,    A in {0, 1}^(L x K)
 
 so the same dense probability map can produce segmentations at different
 hierarchy depths without re-running the classifier.

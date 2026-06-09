@@ -1,14 +1,12 @@
-# Extension Prompts: Boilerplate → Agentic
+# Extension Prompts from Boilerplate to Agentic
 
-This document records how the **fixed boilerplate** implementations in
+This document records how the fixed boilerplate implementations in
 `boilerplate/` were extended into the fuller, agent-assisted versions used to
 run the experiments in the paper. We wrote each pipeline in a functional, fixed
-way first (the code in this directory), then used coding agents (Claude Opus /
-GPT-5) to add the experiment-management machinery: grid search, logging,
-alternative backends, additional metrics, and test scaffolding.
+way first, then used coding agents (Claude Opus /GPT-5) to add the experiment-management machinery: grid search, logging,alternative backends, additional metrics, and test scaffolding.
 
-Each section names the boilerplate file it starts from, the resulting (extended)
-module in the main repo, and the prompt(s) we would use to get there.
+Each section names the boilerplate file it starts from, the extended
+module in the main repo, and the prompts we used to produce it.
 
 ---
 
@@ -49,10 +47,6 @@ module in the main repo, and the prompt(s) we would use to get there.
 
 ## 3. Path-constrained inference and MC-dropout uncertainty
 
-> Note: average-embedding prototype initialization is **part of the boilerplate**
-> (`HGNNPatchClassifier.init_prototypes`), since it is a paper detail rather than
-> an extension. The remaining HGNN inference machinery below is the extension.
-
 - **From:** `boilerplate/learning/models.py` (`HGNNPatchClassifier.forward`
   returns node logits; leaf prediction is a plain argmax over leaf positions)
 - **To:** greedy / beam path decoding and MC-dropout uncertainty (as in the
@@ -78,9 +72,7 @@ module in the main repo, and the prompt(s) we would use to get there.
   > matrix from the taxonomy: penalize confusions between materials that are far
   > apart in the tree less than confusions between nearby materials, by using the
   > normalized shortest-path distance between leaf nodes as the bilateral
-  > compatibility. Fall back to superpixel refinement if `pydensecrf` is missing,
-  > and to no refinement if scikit-image is missing. Add a Felzenszwalb option to
-  > the superpixel backend.
+  > compatibility. Add a Felzenszwalb option to the superpixel backend.
 
 ## 5. Stub predictor for testing the eval plumbing
 
@@ -120,7 +112,7 @@ module in the main repo, and the prompt(s) we would use to get there.
   > binary segment mask and its photo, runs the segmenter once per image, matches
   > every ground-truth segment to its highest-IoU predicted component, and writes
   > per-segment and per-image CSVs plus an aggregate metrics JSON. Add a
-  > Matador-C1 → MINC-S material crosswalk and compute mapped semantic accuracy.
+  > Matador-C1 -> MINC-S material crosswalk and compute mapped semantic accuracy.
   >
   > Add a Segment Anything (SAM ViT-B automatic mask generator) baseline that
   > produces class-agnostic proposals. Give SAM oracle credit by matching each

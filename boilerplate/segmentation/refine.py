@@ -4,16 +4,11 @@ The image is segmented into superpixels and the probability vector
 is averaged within each superpixel, encouraging local spatial consistency
 without a trained dense segmentation model.
 
-A dense-CRF hook (`refine_crf`) is also provided. We experimented with dense-CRF
-refinement (used in Bell et al. (2015) material-
-segmentation pipeline), but it was excluded from the paper because it was too
-slow at evaluation time; SLIC is the default. The full, tuned dense-CRF backend
-(taxonomy-aware compatibility, backend selection) is an agentic extension; see
-PROMPTS.md.
+A dense-CRF hook (`refine_crf`) is also provided, but it was excluded from 
+the paper because it was too slow at evaluation time.
 """
 
 from __future__ import annotations
-
 import numpy as np
 
 

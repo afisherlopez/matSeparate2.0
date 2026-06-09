@@ -1,14 +1,14 @@
 """HGNN hierarchical training objective and accuracy helpers.
 
-Following Beveridge et al. (2025), the HGNN objective combines two terms with a
-greedy (winner-take-all) maximum:
+Following the Beveridge paper, the HGNN objective combines two terms with a
+greedy max:
 
-  1. path term  : binary cross-entropy over all taxonomy nodes, encouraging the
-                  model to activate every node on the correct root-to-leaf path.
-  2. level term : per-depth cross-entropy, encouraging the correct node choice
-                  at each taxonomy level.
+1. path term: binary cross-entropy over all taxonomy nodes, encouraging the
+              model to activate every node on the correct root-to-leaf path.
+2. level term: per-depth cross-entropy, encouraging the correct node choice
+               at each taxonomy level.
 
-The flat ResNet models use plain leaf cross-entropy instead (see train.py).
+The flat ResNet models use plain leaf cross-entropy instead.
 """
 
 import torch

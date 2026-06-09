@@ -9,7 +9,6 @@ confidence.
 
 from dataclasses import dataclass, field
 from typing import List, Tuple
-
 import numpy as np
 from scipy import ndimage
 

@@ -4,7 +4,6 @@ Samples overlapping square windows on a regular grid. The main MINC-S
 evaluation uses window size 128 px and stride 32 px. If the grid does not
 exactly cover the image, the final window in each dimension is snapped to the
 image boundary so the full extent is covered.
-
 """
 
 from __future__ import annotations

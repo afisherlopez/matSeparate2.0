@@ -1,9 +1,9 @@
 """Segmentation evaluation metrics reported in the paper.
 
-Only the metrics actually reported are implemented here:
+Metrics reported:
 
-  geometric  : mean best IoU, Recall@0.50, mean components/image, mean sec/image
-  semantic   : mapped semantic accuracy (patch-based pipelines only)
+  geometric: mean best IoU, Recall@0.50, mean components/image, mean sec/image
+  semantic: mapped semantic accuracy (patch-based pipelines only)
 
 For each ground-truth MINC-S segment we keep the predicted component with the
 highest IoU (the same best-match protocol used for the SAM baseline). SAM is
@@ -11,9 +11,7 @@ included only in geometric metrics because its automatic masks are unlabeled.
 """
 
 from __future__ import annotations
-
 from typing import Dict, List, Optional
-
 import numpy as np
 
 

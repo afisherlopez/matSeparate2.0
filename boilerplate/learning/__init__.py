@@ -1,2 +1,1 @@
-"""Core patch-classification learning code (Matador-C1).
-"""
+"""Core patch-classification learning code (Matador-C1)."""

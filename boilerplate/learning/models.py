@@ -1,17 +1,17 @@
-"""Patch-classifier models (fixed, paper-faithful boilerplate).
+"""Patch-classifier models.
 
 Four classifiers, all over Matador-C1:
-  - ResNetPatchClassifier        : local flat ResNet50, 37-way leaf head
-  - GlobalResNetPatchClassifier  : local + context ResNet50, fused MLP head
-  - HGNNPatchClassifier          : local image node + taxonomy graph, GAT
-  - HGNNPatchClassifier(use_context=True) : global-context HGNN
+  - ResNetPatchClassifier:          local flat ResNet50, 37-way leaf head
+  - GlobalResNetPatchClassifier:    local + context ResNet50, fused MLP head
+  - HGNNPatchClassifier:            local image node + taxonomy graph, GAT
+  - HGNNPatchClassifier(use_context=True): global-context HGNN
 
-Hyperparameters are fixed to the values:
+Fixed hyper params:
   - global ResNet head: hidden 1024, dropout 0.1
   - HGNN: image embedding 1024, 2-layer GAT, hidden 512, output 256,
           1 attention head, skip connections, dropout 0.1
 
-The HGNN graph/objective design follows Beveridge et al. (2025). See ATTRIBUTION.md.
+The HGNN graph/objective design follows Beveridge et al. (2025).
 """
 
 import timm
@@ -117,7 +117,7 @@ class HGNNPatchClassifier(nn.Module):
     information between the image node and the material taxonomy, then a linear
     head produces logits over all taxonomy nodes.
 
-    Edges: undirected taxonomy edges plus bidirectional image<->taxonomy edges.
+    Edges: undirected taxonomy edges plus bidirectional image to taxonomy edges.
     With use_context=True the image node is built from concatenated local +
     context ResNet50 features.
     """

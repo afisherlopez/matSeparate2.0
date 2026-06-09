@@ -3,7 +3,7 @@
 Usage:
     python -m boilerplate.learning.train --model hgnn
 
-Paper hyperparameters (Matador-C1):
+Hyperparameters (Matador-C1):
     optimizer       AdamW, lr 3e-4, weight decay 1e-4
     label smoothing 0.05 (flat ResNet models)
     epochs          15

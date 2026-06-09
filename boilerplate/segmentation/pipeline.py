@@ -46,8 +46,8 @@ def load_image_uint8(image) -> np.ndarray:
 
 class MaterialSegmenter:
     def __init__(self, classifier: PatchClassifier, refine: str = "slic"):
-        # "slic" is the paper default; "crf" enables the dense-CRF backend, which
-        # we experimented with but excluded from the paper (too slow).
+        # "slic" is default
+        # "crf" enables the dense-CRF backend, which we experimented with but excluded from the paper (too slow).
         if refine not in ("slic", "crf"):
             raise ValueError(f"refine must be 'slic' or 'crf', got {refine!r}")
         self.classifier = classifier
