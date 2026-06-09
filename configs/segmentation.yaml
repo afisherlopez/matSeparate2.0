@@ -7,8 +7,9 @@ device: cpu          #just for non-VM runs because of the annoying MPS thing
 sampling:
   type: sliding         
   patch_size: 224       
-  window_area_pct: 1.0  
-  stride: null          
+  window_size: 128      # paper main MINC-S config
+  window_area_pct: null 
+  stride: 32            
   pad_mode: reflect
   batch_size: 32
   min_patches: null     
@@ -20,7 +21,7 @@ upsample:
   renormalize: true
 
 crf:
-  backend: dense       
+  backend: superpixel  # paper default (SLIC); dense CRF supported but too slow
   n_iterations: 7
   gaussian_sxy: 3
   bilateral_sxy: 60

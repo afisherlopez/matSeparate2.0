@@ -80,8 +80,11 @@ def make_model(config, taxonomy):
             taxonomy,
             backbone=backbone,
             pretrained=pretrained,
-            embed_dim=config["model"].get("embed_dim", 256),
-            hidden_dim=config["model"].get("hidden_dim", 128),
+            image_embed_dim=config["model"].get("image_embed_dim", 1024),
+            hidden_dim=config["model"].get("hidden_dim", 512),
+            output_dim=config["model"].get("output_dim", 256),
+            num_heads=config["model"].get("num_heads", 1),
+            skip_connection=config["model"].get("skip_connection", True),
             dropout=config["model"].get("dropout", 0.1),
             use_context=config["model"].get("use_context", False),
         )
@@ -146,6 +149,9 @@ def main():
     train_loader, taxonomy = make_loader(config, "train")
     val_loader, _ = make_loader(config, "val")
     model = make_model(config, taxonomy).to(device)
+    if config["model"]["type"] == "hgnn":
+        # initialize taxonomy-node prototypes from average CNN embeddings
+        model.init_prototypes(train_loader, device=device)
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=config["training"].get("lr", 1e-4),

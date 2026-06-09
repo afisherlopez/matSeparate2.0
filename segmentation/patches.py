@@ -140,8 +140,8 @@ def _resolve_window_stride(
 class SlidingWindowSampler(PatchSampler):
     def __init__(
         self,
-        window_size: int = 96,
-        stride: int = 48,
+        window_size: int = 128,
+        stride: int = 32,
         pad_mode: str = "reflect",
         min_patches: Optional[int] = None,
         max_patches: Optional[int] = None,

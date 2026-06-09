@@ -8,13 +8,13 @@ from typing import Any, Dict, Optional, Union
 
 @dataclass
 class SamplingConfig:
-    type: str = "grid"
+    type: str = "sliding"
     patch_size: int = 224
     pad_mode: str = "reflect"
     batch_size: int = 32
-    window_size: int = 96
+    window_size: int = 128
     window_area_pct: Optional[float] = None
-    stride: Optional[int] = 48
+    stride: Optional[int] = 32
     min_patches: Optional[int] = None
     max_patches: Optional[int] = None
 
@@ -28,7 +28,9 @@ class UpsampleConfig:
 
 @dataclass
 class CRFConfig:
-    backend: str = "dense"
+    # paper default is SLIC superpixel refinement; "dense" CRF is supported but
+    # was excluded from the paper because it was too slow at eval time.
+    backend: str = "superpixel"
     n_iterations: int = 7
     gaussian_sxy: float = 3.0
     bilateral_sxy: float = 60.0
