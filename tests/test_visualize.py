@@ -1,4 +1,4 @@
-"""Smoke tests for segmentation.visualize."""
+#tests for segmentation/visualize
 
 from pathlib import Path
 
@@ -60,9 +60,8 @@ def test_save_panel_with_gt(tmp_path):
 
 
 def test_save_level_comparison(tmp_path):
-    img, result = _make_result()  # result.level == "leaf"
+    img, result = _make_result() 
     out = tmp_path / "compare.png"
     path = save_level_comparison(out, img, result, levels=["leaf", 3, 2])
     assert Path(path).exists()
-    # original result is unchanged / still leaf level after re-cuts
     assert result.level == "leaf"

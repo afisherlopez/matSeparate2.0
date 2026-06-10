@@ -1,4 +1,4 @@
-"""Tests for segmentation.formats: RLE round-trip and artifact export."""
+#segmentation tests
 
 import json
 

@@ -10,6 +10,7 @@ import numpy as np
 
 @dataclass
 class SampleResult:
+<<<<<<< HEAD
     
 
     patches: np.ndarray 
@@ -19,6 +20,15 @@ class SampleResult:
     padded_shape: Tuple[int, int]  
     window_size: int = -1  
     stride: int = -1  
+=======
+    patches: np.ndarray
+    grid_coords: List[Tuple[int, int]]
+    grid_shape: Tuple[int, int]
+    orig_shape: Tuple[int, int]
+    padded_shape: Tuple[int, int]
+    window_size: int = -1
+    stride: int = -1
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
 
     @property
     def num_patches(self) -> int:
@@ -26,13 +36,20 @@ class SampleResult:
 
 
 class PatchSampler:
+<<<<<<< HEAD
 
     def sample(self, image: np.ndarray) -> SampleResult: 
+=======
+    def sample(self, image: np.ndarray) -> SampleResult:
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
         raise NotImplementedError
 
 
 class GridSampler(PatchSampler):
+<<<<<<< HEAD
 
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     def __init__(self, patch_size: int = 224, pad_mode: str = "reflect"):
         if patch_size <= 0:
             raise ValueError("patch_size must be positive")
@@ -79,6 +96,10 @@ class GridSampler(PatchSampler):
 
 
 def _positions(length: int, window: int, stride: int) -> List[int]:
+<<<<<<< HEAD
+=======
+    # last window snapped to edge so the full extent is covered
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     if length <= window:
         return [0]
     stride = max(1, stride)
@@ -141,7 +162,10 @@ def _resolve_window_stride(
 
 
 class SlidingWindowSampler(PatchSampler):
+<<<<<<< HEAD
 
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     def __init__(
         self,
         window_size: int = 96,

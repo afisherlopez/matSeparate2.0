@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 
 def hgnn_loss(node_logits, node_targets, levels):
-    """Small version of the Beveridge-style path + per-level objective."""
+    #small version of the Beveridge path and per level objective
     bce = F.binary_cross_entropy_with_logits(node_logits, node_targets)
 
     level_losses = []

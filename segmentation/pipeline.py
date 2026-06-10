@@ -39,7 +39,10 @@ def load_image_uint8(image: Union[str, Path, Image.Image, np.ndarray]) -> np.nda
 
 @dataclass
 class SegmentationResult:
+<<<<<<< HEAD
 
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     label_map: np.ndarray
     frontier_names: List[str]
     instances: List[Instance]
@@ -74,7 +77,10 @@ class SegmentationResult:
 
 
 class MaterialMerger:
+<<<<<<< HEAD
 
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     def __init__(
         self,
         classifier: PatchClassifier,
@@ -87,6 +93,7 @@ class MaterialMerger:
         self.sampler = build_sampler(self.config.sampling)
         self.leaf_names = classifier.leaf_names
 
+<<<<<<< HEAD
     @classmethod
     def from_run_dir(
         cls,
@@ -110,6 +117,8 @@ class MaterialMerger:
         graph = cls._load_graph(run_dir, repo_root, get_taxonomy)
         return cls(classifier=classifier, graph=graph, config=config)
 
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     @classmethod
     def from_patch_classifier(
         cls,
@@ -138,6 +147,7 @@ class MaterialMerger:
         )
         return cls(classifier=classifier, graph=api.taxonomy.graph, config=config)
 
+<<<<<<< HEAD
     @staticmethod
     def _load_graph(run_dir, repo_root, get_taxonomy) -> nx.DiGraph:
         import yaml
@@ -154,6 +164,8 @@ class MaterialMerger:
                 return get_taxonomy(str(cand))
         return get_taxonomy()  # packaged default
 
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     def segment(
         self,
         image: Union[str, Path, Image.Image, np.ndarray],
@@ -187,7 +199,6 @@ class MaterialMerger:
     def recut(
         self, result: SegmentationResult, level: Union[str, int]
     ) -> SegmentationResult:
-        """Re-derive a (typically coarser) level from cached refined leaf probs."""
         return self._finish(result.refined_leaf_probs, result.image_uint8, level)
 
     def _finish(

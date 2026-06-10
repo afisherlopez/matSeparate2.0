@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import csv
 import json
 import pickle
@@ -9,7 +7,6 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
-
 import numpy as np
 import torch
 from PIL import Image
@@ -18,6 +15,7 @@ from segment_anything import SamAutomaticMaskGenerator, SamPredictor, sam_model_
 from skimage.morphology import binary_dilation, disk
 from skimage.segmentation import find_boundaries
 from tqdm import tqdm
+from __future__ import annotations
 
 
 @dataclass

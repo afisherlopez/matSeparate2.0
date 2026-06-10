@@ -1,4 +1,4 @@
-"""Tests for segmentation.objects: label map + connected-component instances."""
+#segmentations/objects tests
 
 import numpy as np
 
@@ -10,7 +10,6 @@ from segmentation.objects import (
 
 
 def _two_class_probs(h, w):
-    """Left half -> class 0, right half -> class 1, both high confidence."""
     probs = np.zeros((h, w, 2), dtype=np.float32)
     probs[:, : w // 2, 0] = 0.9
     probs[:, : w // 2, 1] = 0.1
@@ -23,10 +22,9 @@ def test_label_map_ids_and_background():
     probs = _two_class_probs(4, 8)
     label_map, conf = build_label_map(probs, bg_threshold=0.5)
     assert label_map.shape == (4, 8)
-    assert set(np.unique(label_map)) == {1, 2}  # materials shifted to start at 1
+    assert set(np.unique(label_map)) == {1, 2}  
     assert conf.max() <= 1.0
 
-    # raise threshold above every confidence -> everything background
     label_map2, _ = build_label_map(probs, bg_threshold=0.95)
     assert np.all(label_map2 == BACKGROUND_ID)
 
@@ -37,18 +35,18 @@ def test_adjacent_same_material_is_one_object():
     insts = extract_instances(
         label_map, conf, ["mat_a", "mat_b"], min_object_area=1
     )
-    # exactly one object per class (each class is a single connected block)
+    
     materials = sorted(i.material for i in insts)
     assert materials == ["mat_a", "mat_b"]
 
 
 def test_disjoint_same_material_two_objects():
-    # class 1 appears as two separated vertical strips with a background gap
+   
     h, w = 6, 9
     probs = np.zeros((h, w, 1), dtype=np.float32)
     probs[:, 0:3, 0] = 0.9
     probs[:, 6:9, 0] = 0.9
-    # middle stays low -> background
+
     label_map, conf = build_label_map(probs, bg_threshold=0.5)
     insts = extract_instances(label_map, conf, ["wood"], connectivity=8, min_object_area=1)
     assert len(insts) == 2
@@ -58,8 +56,8 @@ def test_disjoint_same_material_two_objects():
 def test_min_area_filter():
     h, w = 6, 9
     probs = np.zeros((h, w, 1), dtype=np.float32)
-    probs[0, 0, 0] = 0.9  # single-pixel speck
-    probs[:, 5:9, 0] = 0.9  # larger block
+    probs[0, 0, 0] = 0.9  
+    probs[:, 5:9, 0] = 0.9  
     label_map, conf = build_label_map(probs, bg_threshold=0.5)
     insts = extract_instances(label_map, conf, ["wood"], min_object_area=5)
     assert len(insts) == 1

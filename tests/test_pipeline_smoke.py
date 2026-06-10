@@ -1,4 +1,4 @@
-"""End-to-end smoke test for MaterialMerger using a stub classifier (no checkpoint)."""
+#smoke test using no-checkpoint classifier
 
 from pathlib import Path
 
@@ -15,8 +15,7 @@ C1_TAXONOMY = REPO / "taxonomy" / "assets" / "matador-c1-taxonomy.json"
 
 
 class StubPredictor:
-    """Maps each patch to a near-one-hot leaf distribution by mean brightness."""
-
+   
     def __init__(self, leaf_names):
         self.leaf_names = list(leaf_names)
         # pick a few well-separated leaves to activate

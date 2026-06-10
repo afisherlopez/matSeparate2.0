@@ -18,13 +18,6 @@ def build_taxonomy_compat(
     leaf_names: List[str],
     scale: float = 1.0,
 ) -> np.ndarray:
-    """Build an ``(L, L)`` label-compatibility matrix from taxonomy distance.
-
-    Diagonal is 0 (no penalty for agreeing). Off-diagonal entries grow with the
-    (undirected) shortest-path distance between the two leaf nodes in the taxonomy,
-    normalized to ``[0, 1]`` and multiplied by ``scale``. Confusing siblings is therefore
-    cheaper than confusing distant materials.
-    """
     undirected = graph.to_undirected()
     n = len(leaf_names)
     dist = np.zeros((n, n), dtype=np.float32)
@@ -61,7 +54,6 @@ def _refine_dense(
     d = dcrf.DenseCRF2D(w, h, num_labels)
     d.setUnaryEnergy(np.ascontiguousarray(unary))
 
-    # Compatibility: scalar Potts by default, taxonomy-aware matrix if requested.
     compat_g = config.gaussian_compat
     compat_b = config.bilateral_compat
     if config.taxonomy_aware_compat and graph is not None and leaf_names is not None:
@@ -69,7 +61,7 @@ def _refine_dense(
             compat_b = build_taxonomy_compat(
                 graph, leaf_names, scale=config.bilateral_compat
             )
-        except Exception as exc:  # pragma: no cover - defensive
+        except Exception as exc:
             warnings.warn(f"taxonomy-aware compat failed ({exc}); using Potts")
 
     d.addPairwiseGaussian(sxy=config.gaussian_sxy, compat=float(compat_g))

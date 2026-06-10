@@ -1,4 +1,4 @@
-"""Tests for segmentation.metrics."""
+#segmentation/metrics tests
 
 import numpy as np
 

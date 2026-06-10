@@ -35,7 +35,10 @@ def build_confusion(
     num_classes: int,
     ignore_ids: Tuple[int, ...] = (BACKGROUND_ID,),
 ) -> np.ndarray:
+<<<<<<< HEAD
     
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     if pred.shape != gt.shape:
         raise ValueError(f"pred/gt shape mismatch: {pred.shape} vs {gt.shape}")
     valid = np.ones(gt.shape, dtype=bool)
@@ -43,7 +46,6 @@ def build_confusion(
         valid &= gt != ig
     g = gt[valid].astype(np.int64)
     p = pred[valid].astype(np.int64)
-    # clip stray predicted ids into range so bincount stays bounded
     p = np.clip(p, 0, num_classes - 1)
     g = np.clip(g, 0, num_classes - 1)
     idx = g * num_classes + p
@@ -56,7 +58,10 @@ def metrics_from_confusion(
     class_names: List[str],
     ignore_ids: Tuple[int, ...] = (BACKGROUND_ID,),
 ) -> SegMetrics:
+<<<<<<< HEAD
     
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     cm = cm.astype(np.float64)
     tp = np.diag(cm)
     gt_totals = cm.sum(axis=1)
@@ -101,7 +106,10 @@ def build_shared_space(
     gt_legend: Dict[str, str],
     crosswalk: Optional[Dict[str, str]] = None,
 ) -> Tuple[List[str], Dict[int, int], Dict[int, int]]:
+<<<<<<< HEAD
     
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     crosswalk = crosswalk or {}
 
     def pred_name(name: str) -> str:
@@ -129,8 +137,11 @@ def remap_label_map(label_map: np.ndarray, remap: Dict[int, int]) -> np.ndarray:
     return out
 
 
+<<<<<<< HEAD
 
 #compare two segmentations based on pixel values
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
 @dataclass
 class MaskAgreement:
     adjusted_rand_index: float  
@@ -153,7 +164,10 @@ def _relabel_consecutive(label_map: np.ndarray):
 
 
 def to_connected_components(label_map: np.ndarray, connectivity: int = 8) -> np.ndarray:
+<<<<<<< HEAD
     
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     from scipy import ndimage
 
     structure = (
@@ -258,11 +272,18 @@ def boundary_f1(gt: np.ndarray, pred: np.ndarray, tolerance: int = 2) -> float:
         return 1.0
     if not gb.any() or not pb.any():
         return 0.0
+<<<<<<< HEAD
     
     dist_to_gt = ndimage.distance_transform_edt(~gb)
     dist_to_pred = ndimage.distance_transform_edt(~pb)
     precision = (dist_to_gt[pb] <= tolerance).mean()  
     recall = (dist_to_pred[gb] <= tolerance).mean()  
+=======
+    dist_to_gt = ndimage.distance_transform_edt(~gb)
+    dist_to_pred = ndimage.distance_transform_edt(~pb)
+    precision = (dist_to_gt[pb] <= tolerance).mean()
+    recall = (dist_to_pred[gb] <= tolerance).mean()
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     if precision + recall == 0:
         return 0.0
     return float(2 * precision * recall / (precision + recall))
@@ -275,7 +296,10 @@ def mask_agreement(
     connectivity: int = 8,
     boundary_tolerance: int = 2,
 ) -> MaskAgreement:
+<<<<<<< HEAD
     
+=======
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     if pred_label_map.shape != gt_label_map.shape:
         raise ValueError(
             f"shape mismatch: pred {pred_label_map.shape} vs gt {gt_label_map.shape}"

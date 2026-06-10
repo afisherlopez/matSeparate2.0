@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional, Union
 
 @dataclass
 class SamplingConfig:
+<<<<<<< HEAD
    #dividing image into grid of patches
 
     type: str = "grid"  
@@ -18,23 +19,29 @@ class SamplingConfig:
     window_size: int = 96  
     window_area_pct: Optional[float] = 1.5
     stride: Optional[int] = 48  
+=======
+    type: str = "grid"
+    patch_size: int = 224
+    pad_mode: str = "reflect"
+    batch_size: int = 32
+    window_size: int = 96
+    window_area_pct: Optional[float] = None
+    stride: Optional[int] = 48
+>>>>>>> c01bc9a0d0c1709b7dca3bfcc70c1cedcb4ee065
     min_patches: Optional[int] = None
     max_patches: Optional[int] = None
 
 
 @dataclass
 class UpsampleConfig:
-    #bilinear upsampling
     mode: str = "bilinear"
     align_corners: bool = False
-    renormalize: bool = True  
+    renormalize: bool = True
 
 
 @dataclass
 class CRFConfig:
-    #dense CRF
-
-    backend: str = "dense"  
+    backend: str = "dense"
     n_iterations: int = 7
     gaussian_sxy: float = 3.0
     bilateral_sxy: float = 60.0
@@ -42,29 +49,22 @@ class CRFConfig:
     gaussian_compat: float = 3.0
     bilateral_compat: float = 10.0
     taxonomy_aware_compat: bool = True
-    # superpixel fallback only
-    superpixel_method: str = "slic"  
+    superpixel_method: str = "slic"
     superpixel_n_segments: int = 400
 
 
 @dataclass
 class LevelConfig:
-    """Which level of the taxonomy to segment at."""
-
-    #default is leaf
     target: Union[str, int] = "leaf"
-    shallow_leaf: str = "keep" 
+    shallow_leaf: str = "keep"
 
 
 @dataclass
 class ObjectsConfig:
-    """Label-map thresholding and connected-component object extraction."""
-
-   #confidence threshold for classification
     bg_threshold: float = 0.0
-    connectivity: int = 8  
-    min_object_area: int = 64  
-    morph_close: bool = False 
+    connectivity: int = 8
+    min_object_area: int = 64
+    morph_close: bool = False
     morph_close_radius: int = 2
 
 
@@ -72,15 +72,14 @@ class ObjectsConfig:
 class OutputConfig:
     write_color_viz: bool = True
     write_instance_pngs: bool = False
-    minc_crosswalk: Optional[str] = None 
+    minc_crosswalk: Optional[str] = None
 
 
 @dataclass
 class SegmentationConfig:
-
-    run_dir: Optional[str] = None  
-    checkpoint: Optional[str] = None  
-    classifier: str = "legacy_hgnn"  
+    run_dir: Optional[str] = None
+    checkpoint: Optional[str] = None
+    classifier: str = "patch_classifier"
     device: str = "cpu"
 
     sampling: SamplingConfig = field(default_factory=SamplingConfig)
@@ -89,7 +88,6 @@ class SegmentationConfig:
     level: LevelConfig = field(default_factory=LevelConfig)
     objects: ObjectsConfig = field(default_factory=ObjectsConfig)
     output: OutputConfig = field(default_factory=OutputConfig)
-
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "SegmentationConfig":
