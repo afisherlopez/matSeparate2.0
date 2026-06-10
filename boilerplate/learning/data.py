@@ -1,7 +1,7 @@
 """Matador-C1 patch dataset.
 
 Each manifest row points at a local material crop and (optionally) a global
-context image. Images are loaded as RGB float tensors in [0, 1]; the training
+context image. Images are loaded as RGB float tensors in [0, 1] and the training
 transform handles resize/center-crop to 224 and ImageNet normalization.
 
 This is the fixed boilerplate loader using a CSV manifest read from an extracted

@@ -1,9 +1,9 @@
 """Patch-classifier models.
 
 Four classifiers, all over Matador-C1:
-  - ResNetPatchClassifier:          local flat ResNet50, 37-way leaf head
-  - GlobalResNetPatchClassifier:    local + context ResNet50, fused MLP head
-  - HGNNPatchClassifier:            local image node + taxonomy graph, GAT
+  - ResNetPatchClassifier: local flat ResNet50, 37-way leaf head
+  - GlobalResNetPatchClassifier: local + context ResNet50, fused MLP head
+  - HGNNPatchClassifier: local image node + taxonomy graph, GAT
   - HGNNPatchClassifier(use_context=True): global-context HGNN
 
 Fixed hyper params:
@@ -23,7 +23,7 @@ from torch_geometric.nn import GATConv, global_mean_pool
 
 from boilerplate.learning.taxonomy import Taxonomy
 
-NUM_LEAVES = 37  # Matador-C1 leaf materials
+NUM_LEAVES = 37  #matador-c1 leaf materials
 IMAGE_EMBED_DIM = 1024
 
 
@@ -118,7 +118,7 @@ class HGNNPatchClassifier(nn.Module):
     head produces logits over all taxonomy nodes.
 
     Edges: undirected taxonomy edges plus bidirectional image to taxonomy edges.
-    With use_context=True the image node is built from concatenated local +
+    With use_context=True the image node is built from concatenated local and
     context ResNet50 features.
     """
 
@@ -158,7 +158,7 @@ class HGNNPatchClassifier(nn.Module):
         )
         self.classifier = nn.Linear(output_dim, self.num_nodes)
 
-        # node 0 is the image node; taxonomy nodes are shifted by +1.
+        #node 0 is the image node, and taxonomy nodes are shifted by one
         taxonomy_edges = taxonomy.edge_index(undirected=True) + 1
         image_to_nodes = torch.stack(
             [
@@ -199,7 +199,7 @@ class HGNNPatchClassifier(nn.Module):
             context = batch.get("context_image")
             context = context.to(device) if context is not None else None
             feat = self.encode_image(image, context)
-            node_target = batch["node_target"].to(device)  # (B, num_nodes) path multi-hot
+            node_target = batch["node_target"].to(device)  
             sums += node_target.t() @ feat
             counts += node_target.sum(dim=0)
         seen = counts > 0

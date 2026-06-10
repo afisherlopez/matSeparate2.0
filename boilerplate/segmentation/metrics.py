@@ -5,7 +5,7 @@ Metrics reported:
   geometric: mean best IoU, Recall@0.50, mean components/image, mean sec/image
   semantic: mapped semantic accuracy (patch-based pipelines only)
 
-For each ground-truth MINC-S segment we keep the predicted component with the
+For each ground-truth MINC-S segment keep the predicted component with the
 highest IoU (the same best-match protocol used for the SAM baseline). SAM is
 included only in geometric metrics because its automatic masks are unlabeled.
 """

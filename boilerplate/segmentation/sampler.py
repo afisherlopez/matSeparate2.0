@@ -19,7 +19,7 @@ STRIDE = 32
 
 @dataclass
 class SampleResult:
-    patches: np.ndarray  # (N, ws, ws, 3) uint8
+    patches: np.ndarray 
     grid_coords: List[Tuple[int, int]]
     grid_shape: Tuple[int, int]
     orig_shape: Tuple[int, int]
@@ -30,7 +30,7 @@ def _positions(length: int, window: int, stride: int) -> List[int]:
         return [0]
     pos = list(range(0, length - window + 1, stride))
     if pos[-1] != length - window:
-        pos.append(length - window)  # snap last window to the edge
+        pos.append(length - window)  #snap last window to the edge
     return pos
 
 
@@ -47,7 +47,7 @@ class SlidingWindowSampler:
         h, w = image.shape[:2]
         ws = self.window_size
 
-        # pad up to at least one full window per dimension
+        #pad up to at least one full window per dimension
         hp, wp = max(h, ws), max(w, ws)
         if (hp, wp) != (h, w):
             image = np.pad(image, ((0, hp - h), (0, wp - w), (0, 0)), mode=self.pad_mode)

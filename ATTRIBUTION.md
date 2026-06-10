@@ -22,7 +22,7 @@ us consisted of `hgnn.py`, `loss.py`, `taxonomy/tree.py`, and a
 - **HGNN architecture** — `boilerplate/learning/models.py` (`GraphBackbone`,
   `HGNNPatchClassifier`) reimplements the design from the starter `hgnn.py`:
   a ResNet image embedding projected and inserted as a graph node alongside one
-  **prototype** node per taxonomy node (initialized from average CNN embeddings,
+  prototype node per taxonomy node (initialized from average CNN embeddings,
   `init_prototypes`), a 2-layer GAT with skip connections (hidden 512, output
   256, 1 head), bidirectional imagetotaxonomy edges plus undirected taxonomy edges, global mean pooling, and a node-level linear classifier. The original
   `ImageEncoder`,
@@ -38,7 +38,7 @@ us consisted of `hgnn.py`, `loss.py`, `taxonomy/tree.py`, and a
 ## 2. Our production
 
 Everything specific to extending local hierarchical recognition into
-**scene-level material segmentation** is ours:
+scene-level material segmentation is ours:
 
 - **Full segmentation pipeline** — `boilerplate/segmentation/*`:
   sliding-window sampling, coarse-grid assembly, bilinear upsampling, SLIC
@@ -47,7 +47,7 @@ Everything specific to extending local hierarchical recognition into
   (`sampler.py`, `upsample.py`, `refine.py`, `taxonomy_cut.py`, `classify.py`,
   `objects.py`, `pipeline.py`). The extended versions live in `segmentation/`.
 - **Flat and global-context classifiers** — `ResNetPatchClassifier`,
-  `GlobalResNetPatchClassifier`, and the **global-context HGNN** dual-encoder
+  `GlobalResNetPatchClassifier`, and the global-context HGNN dual-encoder
   fusion (`use_context=True`) are our additions; the Beveridge starter only
   provided the single-image HGNN.
 - **Data + training/eval glue** — Matador-C1 manifest/dataset loaders, the

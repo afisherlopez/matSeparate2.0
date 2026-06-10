@@ -22,7 +22,7 @@ from boilerplate.learning.train import (
     make_model,
 )
 
-# taxonomy depth -> reported level name (root is depth 0)
+#taxonomy depth to reported level name (root is depth 0)
 LEVEL_NAMES = {1: "state", 2: "composition", 3: "form", 4: "material"}
 
 
@@ -78,7 +78,7 @@ def main():
                 leaf_pos = logits.argmax(dim=1).cpu()
             preds = [leaf_names[i] for i in leaf_pos]
 
-            # ground-truth leaf names, recomputed from the leaf-target index
+            #ground-truth leaf names, recomputed from the leaf-target index
             gt_leaf_pos = torch.searchsorted(leaf_indices.cpu(), batch["leaf_target"])
             gts = [leaf_names[i] for i in gt_leaf_pos]
 

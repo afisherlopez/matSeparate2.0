@@ -30,7 +30,7 @@ from boilerplate.learning.models import (
 )
 from boilerplate.learning.taxonomy import load_taxonomy
 
-# --- fixed paths and hyperparameters -----------------------------------------
+#fixed paths and hyperparameters
 TAXONOMY_JSON = "taxonomy/assets/matador-c1-taxonomy.json"
 IMAGE_ROOT = "data/raw/matador"
 TRAIN_CSV = "data/processed/matador_c1/splits/train.csv"
@@ -115,7 +115,6 @@ def run_epoch(model, loader, taxonomy, optimizer, device, train):
                 loss = hgnn_loss(logits, node_target, levels)
                 acc = hgnn_leaf_accuracy(logits, node_target, leaf_indices)
             else:
-                # flat models predict over leaves only; remap to leaf-local index
                 target = torch.searchsorted(leaf_indices, leaf_target)
                 loss = torch.nn.functional.cross_entropy(
                     logits, target, label_smoothing=LABEL_SMOOTHING
@@ -155,7 +154,7 @@ def main():
 
     model = make_model(args.model, taxonomy).to(device)
     if args.model in ("hgnn", "global_hgnn"):
-        # initialize taxonomy-node prototypes from average CNN embeddings
+        #initialize taxonomy-node prototypes from average CNN embeddings
         model.init_prototypes(train_loader, device=device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=WEIGHT_DECAY)
 

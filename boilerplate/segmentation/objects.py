@@ -1,4 +1,4 @@
-"""Connected-component instance extraction (boilerplate).
+"""Connected-component instance extraction.
 
 Each pixel is assigned to the highest-probability frontier class. We extract
 8-connected components separately for each material class and discard
@@ -20,7 +20,7 @@ CONNECTIVITY = 8
 class Instance:
     id: int
     material: str
-    bbox: Tuple[int, int, int, int]  # x, y, w, h
+    bbox: Tuple[int, int, int, int]  
     area: int
     score: float
     mask: np.ndarray = field(repr=False)

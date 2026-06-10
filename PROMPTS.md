@@ -3,7 +3,7 @@
 This document records how the fixed boilerplate implementations in
 `boilerplate/` were extended into the fuller, agent-assisted versions used to
 run the experiments in the paper. We wrote each pipeline in a functional, fixed
-way first, then used coding agents (Claude Opus /GPT-5) to add the experiment-management machinery: grid search, logging,alternative backends, additional metrics, and test scaffolding.
+way first, then used coding agents (Claude Opus 4.8/GPT-5.5) to add the experiment-management machinery: grid search, logging,alternative backends, additional metrics, and test scaffolding.
 
 Each section names the boilerplate file it starts from, the extended
 module in the main repo, and the prompts we used to produce it.
@@ -56,7 +56,7 @@ module in the main repo, and the prompts we used to produce it.
   > probabilities, walk the taxonomy from the root, at each step choosing the
   > highest-probability child via the adjacency matrix, to return a valid
   > root-to-leaf path. Add a beam-search variant with a configurable beam width.
-  > Add an `enable_dropout()` + MC-dropout mode that runs several stochastic
+  > Add an `enable_dropout()` and MC-dropout mode that runs several stochastic
   > forward passes to estimate per-node uncertainty, and let the path decoder
   > penalize uncertain nodes.
 
@@ -114,7 +114,7 @@ module in the main repo, and the prompts we used to produce it.
   > per-segment and per-image CSVs plus an aggregate metrics JSON. Add a
   > Matador-C1 -> MINC-S material crosswalk and compute mapped semantic accuracy.
   >
-  > Add a Segment Anything (SAM ViT-B automatic mask generator) baseline that
+  > Also, add a Segment Anything (SAM ViT-B automatic mask generator) baseline that
   > produces class-agnostic proposals. Give SAM oracle credit by matching each
   > ground-truth segment to its best-IoU SAM proposal, and include SAM in the
   > geometric metrics only (it has no material labels).

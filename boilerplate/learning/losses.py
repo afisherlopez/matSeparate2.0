@@ -4,9 +4,9 @@ Following the Beveridge paper, the HGNN objective combines two terms with a
 greedy max:
 
 1. path term: binary cross-entropy over all taxonomy nodes, encouraging the
-              model to activate every node on the correct root-to-leaf path.
+model to activate every node on the correct root-to-leaf path.
 2. level term: per-depth cross-entropy, encouraging the correct node choice
-               at each taxonomy level.
+at each taxonomy level.
 
 The flat ResNet models use plain leaf cross-entropy instead.
 """
@@ -31,7 +31,7 @@ def hgnn_loss(node_logits, node_targets, levels) -> torch.Tensor:
     if not level_losses:
         return path_loss
     level_loss = torch.stack(level_losses).mean()
-    # greedy maximum of the two terms
+    #greedy max of the two terms
     return torch.maximum(path_loss, level_loss)
 
 

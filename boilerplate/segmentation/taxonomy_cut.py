@@ -20,7 +20,7 @@ import numpy as np
 @dataclass
 class FrontierCut:
     frontier_names: List[str]
-    aggregation: np.ndarray  # (L, K), each leaf maps to exactly one frontier class
+    aggregation: np.ndarray 
     level: Union[str, int]
 
 
@@ -36,7 +36,7 @@ def build_frontier(graph: nx.DiGraph, leaf_names: List[str],
     leaf_to_rep: List[str] = []
     for leaf in leaf_names:
         path = nx.shortest_path(graph, root, leaf)
-        # leaves shallower than the requested depth keep their own label
+        #leaves shallower than the requested depth keep their own label
         leaf_to_rep.append(path[level] if (len(path) - 1) >= level else leaf)
 
     frontier_names = sorted(set(leaf_to_rep))

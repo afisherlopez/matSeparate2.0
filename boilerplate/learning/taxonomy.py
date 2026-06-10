@@ -4,7 +4,7 @@ The taxonomy is the 5-level Matador hierarchy from Beveridge et al. (2025):
 phase -> state -> composition -> form -> material. We load it as a directed
 tree (networkx) and expose the helpers the classifiers need:
 
-  - node <-> index mapping over all taxonomy nodes
+  - node to index mapping over all taxonomy nodes
   - leaf list (the 37 Matador-C1 leaf materials)
   - multi-hot root-to-leaf path targets (for the HGNN objective)
   - per-level node index groups (for the level-wise loss term)
